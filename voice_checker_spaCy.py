@@ -15,7 +15,8 @@ def check(text):
   #tokenizer
   __doc = nlp(text)
   for token in __doc:
-    __pos_tokens.append([token.text, token.pos_])
+    __pos_tokens.append([token.text, token.pos_, token.tag_])
+    print(__pos_tokens[-1])
   print("The instruction was tokenized.")
 
   #Passive let-mode detection
@@ -40,7 +41,7 @@ def check(text):
       __verb = "Don't " + __verb 
 
     #construct the active mode
-    __final_instruction += __verb
+    __final_instruction += __verb.capitalize()
     for x in __object:
       if x=="'s":
         __final_instruction += x
@@ -53,11 +54,19 @@ def check(text):
       else:
         __final_instruction += " " + x
     print(__final_instruction)
+    return __final_instruction
   
-  #Active mode detection
-  else:
-    print("The instruction is in active mode.")
-    return
-  
+  #Passive polite mode detection
+  elif __pos_tokens[0][0].lower() == "you" and __pos_tokens[1][1] == "AUX" and __pos_tokens[2][2] == "VBN":
+    print("The instruction is in a polite passive mode.")
+    return text
 
-check("Let the cabin's wood not be burnt by fire.")
+  #Active mode detection
+  elif __pos_tokens[0][1] == "VERB":
+    print("The instruction is in active mode.")
+    return text
+  
+  #Non-imperative text detection
+  else:
+    print ("The instruction is declarative.")
+    return "The instruction is declarative."
