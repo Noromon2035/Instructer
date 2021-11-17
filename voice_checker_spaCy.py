@@ -1,13 +1,63 @@
 import spacy
+import re
+from spacy import displacy
 nlp = spacy.load("en_core_web_sm")
-text = '''Washing your hands is easy, and it’s one of the most effective ways to prevent the spread of germs. Clean hands can stop germs from spreading from one person to another and throughout an entire community—from your home and workplace to childcare facilities and hospitals.
-Follow these five steps every time.
-Wet your hands with clean, running water (warm or cold), turn off the tap, and apply soap.
-Lather your hands by rubbing them together with the soap. Lather the backs of your hands, between your fingers, and under your nails.
-Scrub your hands for at least 20 seconds. Need a timer? Hum the “Happy Birthday” song from beginning to end twice.
-Rinse your hands well under clean, running water.
-Dry your hands using a clean towel or air dry them.'''
 
-doc = nlp(text)
-for token in doc:
-    print (token.text, token.pos_, token.tag_)
+def check(text):
+
+  __pos_tokens=[]
+  __turning_index=[]
+  __object=[]
+  __verb=''
+  __predicates=[]
+  __final_instruction=''
+
+  #tokenizer
+  __doc = nlp(text)
+  for token in __doc:
+    __pos_tokens.append([token.text, token.pos_])
+  print("The instruction was tokenized.")
+
+  #Passive let-mode detection
+  if __pos_tokens[0][0].lower() =='let':
+    print("The instruction is in passive \"let\" mode!")
+    __turning_index=[__pos_tokens.index(x) for x in __pos_tokens if x[0].lower()=="be" or x[0].lower()=="not"]
+    
+    #find both object and verb base form
+    for i in list(range(1, __turning_index[0])):
+      __object.append(__pos_tokens[i][0])
+    __doc=nlp(__pos_tokens[__turning_index[-1]+1][0])
+    __verb=__doc[0].lemma_
+    print("The object *{}*, and verb *{}*  in base form were found.".format(__object,__verb))
+
+    #find predicates
+    for i in list(range(__turning_index[-1]+2, len(__pos_tokens))):
+      __predicates.append(__pos_tokens[i][0])
+    print("The predicate *{}* was found.".format(__predicates))
+
+    #determine if positive or negative
+    if "not" in [x[0] for x in __pos_tokens]:
+      __verb = "Don't " + __verb 
+
+    #construct the active mode
+    __final_instruction += __verb
+    for x in __object:
+      if x=="'s":
+        __final_instruction += x
+      else:
+        __final_instruction += " " + x
+
+    for x in __predicates:
+      if x=="'s":
+        __final_instruction += x
+      else:
+        __final_instruction += " " + x
+    print(__final_instruction)
+  
+  #Active mode detection
+  else:
+    print("The instruction is in active mode.")
+    return
+  
+
+check("Let the cabin's wood not be burnt by fire.")
