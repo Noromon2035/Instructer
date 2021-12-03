@@ -1,5 +1,7 @@
+print("Importing " + __file__)
 import spacy
 from spacy import tokens
+print("Finished importing " + __file__)
 
 nlp = spacy.load("en_core_web_sm")
 
