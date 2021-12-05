@@ -9,7 +9,7 @@ __is_clean=False
 def main():
     text = 'You closes the door motherfucker'
     grammatically_checked = grammar_checker_lt.check(text)
-    __is_profane= profanity_checker_mod.check(grammatically_checked)
+    __is_clean= profanity_checker_mod.check(grammatically_checked)
     if __is_clean==False:
         return
     tokens = tokenizer.convert(grammatically_checked)

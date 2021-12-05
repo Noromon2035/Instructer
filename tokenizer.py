@@ -22,6 +22,6 @@ def convert(text):
         __nouns.append(np.text)
         print(np.text)
     __tokens["nouns"]=__nouns
-
     print("Noun phrases were detected.")
+    
     return __tokens
