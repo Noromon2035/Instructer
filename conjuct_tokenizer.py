@@ -12,6 +12,7 @@ def conj_clause_processor(conj_index, pos):
     current_cindex=0
     __passed_conj_index=[]
     __passed_conj_clause=[]
+
     while current < len(conj_index)+1:
         try:
             current_cindex=conj_index[current]
@@ -23,7 +24,7 @@ def conj_clause_processor(conj_index, pos):
             temp_clause.append(pos[i])
 
         #Start checking if it's seperating clauses
-        if pos[conj_index[previous]][0]=="and" or pos[conj_index[previous]][0]=="or":
+        if pos[conj_index[previous]][0].lower()=="and" or pos[conj_index[previous]][0].lower()=="or":
             for clause in temp_clause:
                 if clause[1]=="AUX" or clause[1]=="VERB":
                     __passed_conj_index.append(conj_index[previous])
@@ -49,10 +50,14 @@ def tokenize(text):
 
     #First find all conjuctions
     for i in list(range(0, len(__pos))):
-        if __pos[i][1]=="CCONJ" or __pos[i][1]=="SCONJ":
+        if i==0 or __pos[i][1]=="CCONJ" or __pos[i][1]=="SCONJ" or __pos[i][0]=="," or __pos[i][0]=="." or __pos[i][0]=="!":
             __conj_index.append(i)
+    
     
     __conjuctions=conj_clause_processor(__conj_index, __pos)
     __conjuctions=conj_clause_processor(__conjuctions["index"], __pos)
     #Note. Both keys and values have the same size. To access both, just use one of their indexes.
+    print(__conjuctions)
     return __conjuctions
+
+tokenize("The big bad talking wolf is tasked to bring the little dogs and pigs, while he and she is eating")

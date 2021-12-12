@@ -1,7 +1,7 @@
 print("Importing " + __file__)
 from numpy import conj
 import spacy
-import conjuct_tokenizer
+import clause_tokenizer
 import re
 print("Finished importing " + __file__ +"\n")
 
@@ -26,10 +26,4 @@ def check(text):
     print(__tokens["noun_phrases"])
     print("Noun phrases were detected.\n")
 
-    __tokens["conjunctions"]=conjuct_tokenizer.tokenize(text)
-    print(__tokens["conjunctions"])
-    print("Conjuctions were detected.\n")
-    return __tokens
-
-check("The big bad talking wolf is tasked to bring the little dogs and pigs, while he is eating")
-
+#check("The big bad talking wolf is tasked to bring the little dogs and pigs while he and she is eating, but it failed.")

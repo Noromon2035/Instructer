@@ -24,4 +24,4 @@ def convert(text):
     print(__clauses)
     return __tokens
 
-convert("The big bad talking wolf's brother is tasked to bring the little dogs and pigs while he and she is eating, but it failed.")
+convert("The big bad talking wolf's brother is tasked to bring the little dogs and pigs while he and she is eating by failing it.")
