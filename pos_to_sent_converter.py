@@ -9,5 +9,5 @@ def convert(pos):
       else:
         __sentence += " " + x[0]
       __count+=1
-    print(__sentence)
+    print("POS tags were converted into \"" + __sentence + "\"")
     return __sentence

@@ -57,8 +57,9 @@ def conj_index_processor(conj_index, pos):
                         resulting_clauses.append(temp_next_clause)
                     print("Index: " + str(conj_index[i]))
                     break
-    print("Result: ")
-    print(resulting_clauses)
+    print("\nClauses were found: ")
+    for clause in resulting_clauses:
+        print(clause)
     return resulting_clauses
                 
 

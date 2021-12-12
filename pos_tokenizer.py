@@ -9,4 +9,5 @@ def tokenize(text):
     __doc = nlp(text)
     for token in __doc:
         __pos.append([token.text, token.pos_, token.tag_])
+    print("\nThe sentences was tagged.")
     return __pos
