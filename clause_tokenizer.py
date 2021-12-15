@@ -1,10 +1,6 @@
 print("Importing " + __file__)
-from numpy import array, conj
-import spacy
 import re
 print("Finished importing " + __file__)
-
-nlp = spacy.load("en_core_web_sm")
 
 non_clause_seperators=("and","or",",",".")
 clause_seperators=(".",",",";","!")
@@ -70,7 +66,7 @@ def tokenize(text, pos):
 
     #First find all clause seperators
     for i in list(range(0, len(__pos))):
-        if __pos[i][1]=="CCONJ" or __pos[i][1]=="SCONJ" or __pos[i][0] in clause_seperators:
+        if __pos[i][1]=="CCONJ" or __pos[i][1]=="SCONJ" or __pos[i][0] in clause_seperators or __pos[i][2]=="RB":
             __conj_index.append(i)
     
     
