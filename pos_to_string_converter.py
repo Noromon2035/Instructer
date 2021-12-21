@@ -1,4 +1,3 @@
-
 def convert(pos):
     __sentence=""
     __count=0
