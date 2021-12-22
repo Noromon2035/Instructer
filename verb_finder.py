@@ -9,18 +9,24 @@ def find(text,pos):
     __vb_indexes=[]
     __final_vb_indexes=[]
 
-    for i in list(range(0,len(pos))):
-        if pos[i][1] in verb_tags:
+    for i in list(range(0,len(__pos))):
+        if __pos[i][1] in verb_tags:
             __vb_indexes.append(i)
+    
+    if __vb_indexes==[]:
+        __pos=verb_finder_backup(__pos)
+        for i in list(range(0,len(__pos))):
+            if __pos[i][1] == "VERB":
+               __vb_indexes.append(i)
             
     for i in list(range(0,len(__vb_indexes))):
         temp_index=__vb_indexes[i]
-        if pos[temp_index][2]=="VBG":
+        if __pos[temp_index][2]=="VBG":
             has_aux=True
             counter=0
             while has_aux == True:
                 try:
-                    if pos[temp_index-counter][1] in before_verb_tags and pos[temp_index-counter][0]!="'s":
+                    if __pos[temp_index-counter][1] in before_verb_tags and __pos[temp_index-counter][0]!="'s":
                         if temp_index-counter not in __final_vb_indexes:
                             __final_vb_indexes.append(temp_index-counter)
                         has_aux=True
@@ -61,6 +67,29 @@ def find_only_verb(text,pos):
                 continue
         else:
             __final_vb_indexes.append(__vb_indexes[i])
+
+    
+    print(__final_vb_indexes)
+    return __final_vb_indexes
+
+def find_only_verb_question(text,pos):
+    __pos=pos
+    __vb_indexes=[]
+    __final_vb_indexes=[]
+
+    for i in list(range(0,len(__pos))):
+        if __pos[i][1] == "VERB":
+            __vb_indexes.append(i)
+    
+    if __vb_indexes==[]:
+        __pos=verb_finder_backup(__pos)
+        for i in list(range(0,len(__pos))):
+            if __pos[i][1] == "VERB":
+               __vb_indexes.append(i)
+
+    for i in list(range(0,len(__vb_indexes))):
+        temp_index=__vb_indexes[i]
+        __final_vb_indexes.append(__vb_indexes[i])
 
     
     print(__final_vb_indexes)
