@@ -59,7 +59,10 @@ def conj_index_processor(conj_index, pos):
     print("\nClauses were found: ")
     for clause in resulting_clauses:
         print(clause)
-    return resulting_clauses
+    if resulting_clauses ==[]:
+        return [pos]
+    else:
+        return resulting_clauses
                 
 
 def tokenize(text, pos):

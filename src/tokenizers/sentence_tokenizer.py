@@ -6,8 +6,6 @@ print("Finished importing " + __file__)
 def convert(text,pos):
 
     __tokens={}
-    __nouns=[]
-    __pos=[]
     __clauses=[]
 
     __tokens["clauses"]=clause_tokenizer.tokenize(text, pos)

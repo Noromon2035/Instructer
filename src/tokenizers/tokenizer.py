@@ -12,8 +12,9 @@ def convert(text):
     print("\n\n\n\n\n")
     for sentence in __sentences:
         __sent_pos=nlp_funcs.pos_tokenize(sentence)
+        print(__sent_pos)
         subj_pred=spt.tokenize(sentence,__sent_pos)
         subj_prep=pt.tokenize(subj_pred["subject"])
         pred_prep=pt.tokenize(subj_pred["predicate"])
 
-convert("As much as possible, the big bad talking wolf's brother is tasked to bring the little pigs in the house then he and she is eating hotdogs of the west, but it failed miserably.")
+convert("You are tasked to swim under the sea while eating breakfast")

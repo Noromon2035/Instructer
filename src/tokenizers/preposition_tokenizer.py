@@ -25,5 +25,5 @@ def tokenize(text):
         __temp_phrase=pos_to_string_converter.convert(__temp_pos_phrase)
         __prep_phrases.append(__temp_phrase)
     
-    print("Prepositional phrases were found.")
+    if __prep_phrases!=[]: print("Prepositional phrases were found.")
     return __prep_phrases
