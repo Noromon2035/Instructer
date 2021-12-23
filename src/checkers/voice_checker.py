@@ -1,22 +1,27 @@
 print("Importing " + __file__)
-import logic_module.nlps.nlp_funcs as nlp_funcs
-import logic_module.finders.verb_finder as verb_finder
-import logic_module.converters.pos_to_string_converter as pos_to_string_converter
+from nlps import nlp_funcs as nlp_funcs
+from finders import verb_finder as verb_finder
+from converters import pos_to_string_converter as pos_to_string_converter
 print("Finished importing " + __file__)
 
 def check(text):
     __result=""
     __pos=nlp_funcs.pos_tokenize(text)
     __verb=[]
+    print(__pos)
 
-    if __pos[-1][0]=="?": #convert interrogative to imperative
+    if is_interrogative(__pos): #convert interrogative to imperative
             __verb=verb_finder.find_only_verb_question(text,__pos)
             print("The sentence is interrogative.")
-            __pos[__verb[0]][0]=__pos[__verb[0]][3].title()
-            __pos[-1][0]="."
-            __pos[-1][2]="."
+            if __pos[-1][0]=="?":
+                __pos[-1][0]="."
+                __pos[-1][2]="."
+            if __pos[-1][1]!="PUNCT":
+                __pos.append(['.','PUNCT','.'])
+            __pos[__verb[0]][0]=__pos[__verb[0]][3]
             phrase_after_token=[__pos[i] for i in list(range(__verb[0],len(__pos)))]
             __result=pos_to_string_converter.convert(phrase_after_token)
+            __result="You are tasked to " +__result
             print(__result)
             return __result
     else:
@@ -27,9 +32,20 @@ def check(text):
         #convert imperative into passive
         if noun_phrases == [] and __pos[__verb[0]][3]==__pos[__verb[0]][0].lower():
                 print("The sentence is imperative.")
-                phrase_before_token[0][0]=phrase_before_token[0][0].lower()
-                if phrase_before_token[-1][1]=="PUNCT":
-                    phrase_before_token.pop()
+                if __pos[-1][0]=="?":
+                    __pos[-1][0]="."
+                    __pos[-1][2]="."
+                if __pos[-1][1]!="PUNCT":
+                    __pos.append(['.','PUNCT','.'])
+                __pos[__verb[0]][0]=__pos[__verb[0]][3]
+
+                try:
+                    phrase_before_token[0][0]=phrase_before_token[0][0].lower()
+                    if phrase_before_token[-1][1]=="PUNCT":
+                        phrase_before_token.pop()
+                except:
+                    print("No phrases found before verb")
+
                 phrase_after_token=[__pos[i] for i in list(range(__verb[0],len(__pos)))]
                 if phrase_after_token[-1][1]=="PUNCT":
                     for token in phrase_before_token:
@@ -42,12 +58,34 @@ def check(text):
             matches=nlp_funcs.match(text, imp_pattern)
             if len(matches)>0:
                 print("The sentence is in imperative passive form.")
-            else: #convert declarative into imperative
-                print("The sentence is declarative.")
-                __pos[__verb[0]][0]=__pos[__verb[0]][3].title()
-                phrase_after_token=[__pos[i] for i in list(range(__verb[0],len(__pos)))]
-                __result=pos_to_string_converter.convert(phrase_after_token)
+                if __pos[-1][0]=="?":
+                    __pos[-1][0]="."
+                    __pos[-1][2]="."
+                if __pos[-1][1]!="PUNCT":
+                    __pos.append(['.','PUNCT','.'])
+                __pos[0][0]=__pos[0][0].title()
+                __result=pos_to_string_converter.convert(__pos)
                 print(__result)
                 return __result
-        
-check("John has three apples.")
+            else: #convert declarative into imperative
+                print("The sentence is declarative.")
+                if __pos[-1][0]=="?":
+                    __pos[-1][0]="."
+                    __pos[-1][2]="."
+                if __pos[-1][1]!="PUNCT":
+                    __pos.append(['.','PUNCT','.'])
+                __pos[__verb[0]][0]=__pos[__verb[0]][3]
+                phrase_after_token=[__pos[i] for i in list(range(__verb[0],len(__pos)))]
+                __result=pos_to_string_converter.convert(phrase_after_token)
+                __result="You are tasked to " +__result
+                print(__result)
+                return __result
+    
+def is_interrogative(pos):
+    #Criteria: 5W1H or AUX pos
+    question_words=("who","when","what","where","why","whose","how")
+    if pos[0][0] in question_words or pos[0][1] == "AUX":
+        return True
+    else:
+        return False
+check("Swim under the sea?")
