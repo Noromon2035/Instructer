@@ -1,0 +1,5 @@
+Previous package installation:
+->  python -m venv .
+->  source bin/activate
+->  pip install -e .
+->  python src/tokenizers/tokenizer.py
