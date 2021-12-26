@@ -11,7 +11,6 @@ def pos_tokenize(text):
     __doc = nlp(text)
     for token in __doc:
         __pos.append([token.text, token.pos_, token.tag_,token.lemma_])
-    print("\nThe text was tagged.")
     return __pos
 
 def find_noun_phrases(text):
@@ -19,7 +18,7 @@ def find_noun_phrases(text):
     __doc = nlp(text)
     for np in __doc.noun_chunks:
         __nouns.append(np.text)
-    if __nouns !=[]: print("\nNouns were found.")
+    if __nouns !=[]: print(__nouns)
     return __nouns
 
 def lemmatize(text):
@@ -48,3 +47,5 @@ def match(text, pattern):
     for span in matches:
         print(span.text)
     return matches
+
+find_noun_phrases("Are you contacting 98's of the class after eating in cafe along with him?")

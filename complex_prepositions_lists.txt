@@ -1,0 +1,84 @@
+along with,who
+along with,what
+along with,how
+apart from,who
+apart from,what
+apart from,how
+as for,who
+as for,what
+as for,why
+aside from,who
+aside from,what
+aside from,how
+as well as,who
+as well as,what
+as well as,how
+except for,what
+except for,who
+in addition to,who
+in addition to,what
+other than,what
+other than,who
+regardless of,what
+regardless of,who
+save for,what
+save for,who
+together with,who
+together with,what
+together with,how
+up against,who
+up against,what
+up against,where
+vis-a-vis,who
+vis-a-vis,what
+vis-a-vis,why
+with regard to,who
+with regard to,what
+with regard to,why
+ahead of,where
+ahead of,when
+away from,where
+close to,where
+forward of,where
+in between,where
+in favour of,where
+in front of,where
+near to,where
+next to,where
+onboard,where
+onto,where
+on top of,where
+opposite to,where
+out of,where
+outside of,where
+further to,when
+in case of,when
+in face of,when
+prior to,when
+up to,when
+up until,when
+according to,why
+as per,why
+as to,why
+because of,why
+but for,why
+due to,why
+in spite of,why
+instead of,why
+in view of,why
+irrespective of,why
+on account of,why
+on behalf of,why
+owing to,why
+preperatory to,why
+thanks to,why
+with reference to,who
+with reference to,what
+with reference to,why
+a la,how
+by means of,how
+contrary to,how
+depending on,how
+in lieu of,how
+other than,how
+with reference to,how
