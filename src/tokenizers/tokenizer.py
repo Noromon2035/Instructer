@@ -1,8 +1,8 @@
 print("Importing " + __file__)
-import sentence_tokenizer as st
+from tokenizers import sentence_tokenizer as st
 from nlps import nlp_funcs as nlp_funcs
-import subject_predicate_tokenizer as spt
-import preposition_tokenizer as pt
+from tokenizers import subject_predicate_tokenizer as spt
+from tokenizers import preposition_tokenizer as pt
 print("Finished importing " + __file__)
 
 def convert(text):
