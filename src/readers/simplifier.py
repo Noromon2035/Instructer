@@ -3,7 +3,6 @@ start=time.time()
 
 import pyinflect
 import statistics
-import math
 from gensim.models import KeyedVectors
 from nltk.corpus import wordnet as wn
 from nltk.corpus import stopwords
@@ -60,7 +59,6 @@ def best_synonym_1(orig_token,above_median,pos):
             try:
                 similarity=wordvec.similarity(token[0],context_tokens[i][3])
                 error+=abs(similarity-orig_token_similarities[i])
-                #print("{} and {}: {}; error = {}".format(token[0],context_tokens[i][3],similarity,error))
             except:
                 error+=0
         total_error.append(error)
@@ -132,7 +130,6 @@ def simplify(pos):
     for i in list(range(0,len(final_synonyms))):
         if pos_without_sw[i][3]!=final_synonyms[i]:
             pos_without_sw[i][0],pos_without_sw[i][3]=final_synonyms[i],final_synonyms[i]
-            #pos[pos_without_sw[i][5]]=pos_without_sw[i]
             changed_pos.append([pos_without_sw[i][5],pos_without_sw[i][2]])
 
     new_text=pos_to_string_converter.convert(pos)
@@ -150,7 +147,7 @@ def simplify(pos):
 text1="A step-mother below utilises a prosaic language, but if they do, they acheive beaut by the complexity of their construction, the way the sentence unspools."
 text2="I find beautiful language necessary but not sufficient."
 text3="But if a sentence is only beautiful, and doesn't stretch for anything more, I feel admiration but not love. After all, there are millions of gorgeous lines of prose, and we only have so much attention."
-sample=nlp_funcs.pos_tokenize(text1)
+sample=nlp_funcs.pos_tokenize_spaced(text1)
 result=simplify(sample)
 print(result)
 

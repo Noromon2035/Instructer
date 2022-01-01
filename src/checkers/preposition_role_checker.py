@@ -33,7 +33,7 @@ single_prepositions=[['from', 'whose'], ['from', 'whom'], ['from', 'who'], ['fro
 ['unlike', 'how'], ['upon', 'how'], ['via', 'how'], ['with', 'how'], ['without', 'how'], 
 ['bar', 'what'], ['despite', 'how'], ['given', 'how'], ['given', 'what'], 
 ['pro', 'what'], ['pro', 'how'], ['save', 'how'], ['save', 'what'], ['saving', 'how'], 
-['saving', 'what']]
+['saving', 'what'], ['of', 'when']]
 
 complex_prepositions=[['along with', 'who'], ['along with', 'what'], ['along with', 'how'], 
 ['apart from', 'who'], ['apart from', 'what'], ['apart from', 'how'], ['as for', 'who'], 
@@ -61,9 +61,12 @@ complex_prepositions=[['along with', 'who'], ['along with', 'what'], ['along wit
 ['contrary to', 'how'], ['depending on', 'how'], ['in lieu of', 'how'], 
 ['other than', 'how'], ['with reference to', 'how']]
 
-
+question_words=("person","what","place","when","why","how","whose","whom")
 
 import re
+from nlps import nlp_funcs
+from gensim.models import KeyedVectors
+wordvec = KeyedVectors.load("instruct_vector.wordvectors", mmap='r')
 
 def partition(arr,low,high):
     i = (low-1)
@@ -103,15 +106,58 @@ def search_prep_func(phrase):
                 result.append(prep[1])
     return result
 
+def check_prep_role(prep):
+    if len(prep[2])<=1:
+        print("\n"+prep[1])
+        prep[2]=prep[2][0]
+        return prep
+    else:
+        time_regex="\d+\d+"
+        date_regex="\d+[/-]\d+[/-]\d+"
+        if re.findall(time_regex,prep[1])!=[] or re.findall(date_regex,prep[1])!=[]:
+            prep[2]="when"
+            return prep
+        else:
+            pos=nlp_funcs.pos_tokenize(prep[1])
+            similarities=[]
+            for quest_word in question_words:
+                highest_similarity=-1
+                for token in pos:
+                    similarity=0
+                    try:
+                        similarity=wordvec.similarity(quest_word,token[0].lower())
+                    except:
+                        print(token[0])
+                        similarity=-1
+                    if similarity> highest_similarity:
+                        highest_similarity=similarity
+                converted_q_word=quest_word
+                if quest_word=="person":
+                    converted_q_word="who"
+                elif quest_word=="place":
+                    converted_q_word="where"
+                similarities.append([converted_q_word,highest_similarity])
+            
+            highest=similarities[0]
+            for similarity in similarities:
+                if similarity[1]>highest[1] and similarity[0] in prep[2]:
+                    highest=similarity
+            print("\n"+prep[1])
+            print(highest)
+            prep[2]=highest[0]
+            return prep
+
 def check(text):
     found_indexes=set()
     found_prepositions=[]
     tokens=re.split(r"[^a-zA-Z0-9_'-]",text)
     tokens.remove('')
-    max_letter=4
-    while max_letter>len(tokens):
-        max_letter-=1
-    for h in list(reversed(range(0,max_letter))):
+    max_word_count=4    #highest word count of preposition
+    while max_word_count>len(tokens):
+        max_word_count-=1
+    
+    #get all combinations from max to low word count
+    for h in list(reversed(range(0,max_word_count))):
         phrases=[]
         for i in list(range(h,len(tokens))):
             phrase=convert_token(tokens,i-h,i+1)
@@ -145,20 +191,33 @@ def check(text):
                             for i in list(range(phrase[1],phrase[2]+1)):
                                 found_indexes.add(i)
 
+    #arrange set in numerical order of indexes
     quicksort_prep(found_prepositions,0,len(found_prepositions)-1)
+
+    #get prepositional phrases and before it
     prep_phrases=[]
     for i in list(range(0,len(found_prepositions))):
         prep_phrase_tokens=[]
+        before_prep_tokens=[]
         try:
             for j in list(range(found_prepositions[i][1],found_prepositions[i+1][1])):
                 prep_phrase_tokens.append(tokens[j])
         except:
             for j in list(range(found_prepositions[i][1],len(tokens))):
                 prep_phrase_tokens.append(tokens[j])
+        if i!=0:
+            for j in list(range(found_prepositions[i-1][1],found_prepositions[i][1])):
+                before_prep_tokens.append(tokens[j])
+        else:
+            for j in list(range(0,found_prepositions[i][1])):
+                before_prep_tokens.append(tokens[j])
         prep_phrase=convert_token(prep_phrase_tokens,0,len(prep_phrase_tokens))
-        prep_phrases.append([prep_phrase,found_prepositions[i][3:]])
-    print()
+        before_prep_phrase=convert_token(before_prep_tokens,0,len(before_prep_tokens))
+        prep_phrases.append([before_prep_phrase,prep_phrase,found_prepositions[i][3:]])
+
     print(prep_phrases)
+    for phrase in prep_phrases:
+        print(check_prep_role(phrase))
     return prep_phrases
 
-check("Are you contacting 98's of the class after eating in cafe along with him?")
+check("Are you contacting 98's of the class after eating in cafe in January along with him?")
