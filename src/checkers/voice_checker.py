@@ -1,12 +1,14 @@
 print("Importing " + __file__)
-from nlps import nlp_funcs as nlp_funcs
+from nlps import nlp_matcher
+from tokenizers import pos_tokenizer
+from finders import noun_phrase_finder
 from finders import verb_finder as verb_finder
 from converters import pos_to_string_converter as pos_to_string_converter
 print("Finished importing " + __file__)
 
 def check(text):
     __result=""
-    __pos=nlp_funcs.pos_tokenize(text)
+    __pos=pos_tokenizer.pos_tokenize(text)
     __verb=[]
     print(__pos)
 
@@ -28,7 +30,7 @@ def check(text):
         __verb=verb_finder.find_only_verb(text,__pos)
         phrase_before_token=[__pos[i] for i in list(range(0,__verb[0]))]
         phrase_before=pos_to_string_converter.convert(phrase_before_token)        
-        noun_phrases=nlp_funcs.find_noun_phrases(phrase_before)
+        noun_phrases=noun_phrase_finder.find(phrase_before)
         #convert imperative into passive
         if noun_phrases == [] and __pos[__verb[0]][3]==__pos[__verb[0]][0].lower():
                 print("The sentence is imperative.")
@@ -55,7 +57,7 @@ def check(text):
                 return __result
         else:
             imp_pattern = [[{"POS":{"NOT_IN":["AUX"]}},{"POS":"AUX","OP":"?"},{"POS":"AUX","OP":"?"}, {"POS":"AUX"},{"TAG":"VBN"},{"LOWER":"to"},{"TAG": "VB"}]]
-            matches=nlp_funcs.match(text, imp_pattern)
+            matches=nlp_matcher.match(text, imp_pattern)
             if len(matches)>0:
                 print("The sentence is in imperative passive form.")
                 if __pos[-1][0]=="?":

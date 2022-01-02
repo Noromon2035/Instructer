@@ -1,6 +1,6 @@
 print("Importing " + __file__)
-from converters import pos_to_string_converter as pos_to_string_converter
-from finders import verb_finder as verb_finder
+from converters import pos_to_string_converter
+from finders import verb_finder
 print("Finished importing " + __file__)
 
 verb_tags=("VERB","AUX")
@@ -21,5 +21,5 @@ def tokenize(text,pos):
 
     __result["subject"]=pos_to_string_converter.convert(__subj)
     __result["predicate"]=pos_to_string_converter.convert(__pred)
-    print(__result)
     return __result
+    

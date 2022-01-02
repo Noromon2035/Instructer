@@ -1,4 +1,4 @@
-from nlps import nlp_funcs as nlp_funcs
+from finders import synsets_finder
 
 verb_tags=("VERB","AUX")
 before_verb_tags=("VERB","AUX","PART")
@@ -38,7 +38,6 @@ def find(text,pos):
             if __vb_indexes[i] not in __final_vb_indexes:
                 __final_vb_indexes.append(__vb_indexes[i])
     __final_vb_indexes.sort()
-    print(__final_vb_indexes)
     return __final_vb_indexes
 
 def find_only_verb(text,pos):
@@ -106,8 +105,8 @@ def verb_finder_backup(pos):
     highest_verb_ratio=0
     for index in __prep_indexes:
         try:
-            noun_count=nlp_funcs.find_noun_synsets_count(pos[index-1][0])
-            verb_count=nlp_funcs.find_verb_synsets_count(pos[index-1][0])
+            noun_count=synsets_finder.find_noun_synsets_count(pos[index-1][0])
+            verb_count=synsets_finder.find_verb_synsets_count(pos[index-1][0])
             verb_ratio=(verb_count+1)/(noun_count+1)
             if verb_ratio>highest_verb_ratio:
                 highest_verb_ratio=verb_ratio

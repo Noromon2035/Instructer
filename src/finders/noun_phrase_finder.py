@@ -9,6 +9,5 @@ def find(text):
     __doc = nlp(text)
     for np in __doc.noun_chunks:
         __nouns.append(np.text)
-    print(__nouns)
+    if __nouns !=[]: print(__nouns)
     return __nouns
-    

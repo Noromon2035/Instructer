@@ -17,6 +17,7 @@ for line in lines:
     print("{}/{}".format(current,max))
     current+=1
 print(len(all_words))
+
 """
 with open("occurences.txt", 'w') as w:
     file=open("model-vocab-1.txt", 'r')

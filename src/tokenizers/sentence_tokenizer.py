@@ -1,6 +1,6 @@
 print("Importing " + __file__)
-import clause_tokenizer
-from converters import pos_to_string_converter as pos_to_string_converter
+from tokenizers import clause_tokenizer
+from converters import pos_to_string_converter
 print("Finished importing " + __file__)
 
 def convert(text,pos):

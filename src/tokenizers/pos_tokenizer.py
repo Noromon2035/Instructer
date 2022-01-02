@@ -1,15 +1,8 @@
-print("Importing " + __file__)
-import re
 import spacy
-from spacy.matcher import Matcher
 from spacy.tokenizer import Tokenizer
-from spacy.tokens import Doc
-from nltk.corpus import wordnet as wn
-
-print("Finished importing " + __file__ +"\n")
-
 from spacy.lang.char_classes import ALPHA, ALPHA_LOWER, ALPHA_UPPER, CONCAT_QUOTES, LIST_ELLIPSES, LIST_ICONS
 from spacy.util import compile_infix_regex
+
 def custom_tokenizer(nlp):
     infixes = (
         LIST_ELLIPSES
@@ -37,7 +30,6 @@ nlp = spacy.load("en_core_web_sm")
 nlp.tokenizer = custom_tokenizer(nlp)
 
 def tokenize(text):
-    __pos=[]
     __doc = nlp(text)
     return __doc
 
@@ -47,37 +39,3 @@ def pos_tokenize(text):
     for token in __doc:
         __pos.append([token.text, token.pos_, token.tag_,token.lemma_])
     return __pos
-
-def pos_tokenize_spaced(text):
-    __pos=[]
-    __doc = nlp(text)
-    for token in __doc:
-        __pos.append([token.text, token.pos_, token.tag_,token.lemma_])
-    return __pos
-
-def find_noun_phrases(text):
-    __nouns=[]
-    __doc = nlp(text)
-    for np in __doc.noun_chunks:
-        __nouns.append(np.text)
-    if __nouns !=[]: print(__nouns)
-    return __nouns
-
-def lemmatize(text):
-    __lemmas=[]
-    lemmatizer = nlp.get_pipe("lemmatizer")
-    __doc = nlp(text)
-    for token in __doc:
-        __lemmas.append(token.lemma_)
-    print("\nThe text was lemmatized")
-    return __lemmas
-
-def match(text, pattern):
-    matcher = Matcher(nlp.vocab)
-    #pattern [{:},{:}]
-    matcher.add("matcher", pattern)
-    doc = nlp(text)
-    matches = matcher(doc, as_spans=True)
-    for span in matches:
-        print(span.text)
-    return matches

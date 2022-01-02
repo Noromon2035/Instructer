@@ -1,12 +1,10 @@
-import time
-start=time.time()
-
 import pyinflect
 import statistics
 from gensim.models import KeyedVectors
 from nltk.corpus import wordnet as wn
 from nltk.corpus import stopwords
-from nlps import nlp_funcs
+
+from tokenizers import pos_tokenizer
 from converters import pos_to_string_converter
 
 sw = stopwords.words('english')
@@ -63,7 +61,6 @@ def best_synonym_1(orig_token,above_median,pos):
                 error+=0
         total_error.append(error)
         total_errors.append(total_error)
-    print(total_errors)
     
     best_synonym=total_errors[0][0]
     lowest_error=total_errors[0][1]
@@ -86,7 +83,6 @@ def best_synonym_2(orig_token,tokens,pos):
             else:
                 return token[0]
 
-
 def simplify(pos):
     pos_without_sw = [token for token in pos if token[0].lower() not in sw and token[1] in wordnet_pos]
     indexes_without_sw = [i for i in list(range(0,len(pos))) if pos[i][0].lower() not in sw and pos[i][1] in wordnet_pos]
@@ -96,7 +92,6 @@ def simplify(pos):
         pos_without_sw[i].append(i)
         pos_without_sw[i].append(indexes_without_sw[i])
     del indexes_without_sw
-    print(pos_without_sw)
 
     final_synonyms=[]
     for token in pos_without_sw:
@@ -118,14 +113,12 @@ def simplify(pos):
             occurences=doc.count("{} ".format(syn))
             if occurences!=0:
                 synonym_tokens.append([syn,occurences])
-        print(synonym_tokens)
         
         #choose the best synonym
         final_synonym=best_synonym_2(token,synonym_tokens,pos_without_sw)
         final_synonyms.append(final_synonym)
-        print("Best synonym: {}\n".format(final_synonym))
+        print("Best synonym: {}".format(final_synonym))
 
-    print()
     changed_pos=[] #[index,tag]
     for i in list(range(0,len(final_synonyms))):
         if pos_without_sw[i][3]!=final_synonyms[i]:
@@ -133,23 +126,9 @@ def simplify(pos):
             changed_pos.append([pos_without_sw[i][5],pos_without_sw[i][2]])
 
     new_text=pos_to_string_converter.convert(pos)
-    doc_tokens=nlp_funcs.tokenize(new_text)
+    doc_tokens=pos_tokenizer.tokenize(new_text)
     for token in changed_pos:
         morphed=doc_tokens[token[0]]._.inflect(token[1])
         if morphed !=None:
             pos[token[0]][0]=morphed
-    print(len(doc_tokens),len(pos))
     return pos_to_string_converter.convert(pos)
-    
-   
-
-
-text1="A step-mother below utilises a prosaic language, but if they do, they acheive beaut by the complexity of their construction, the way the sentence unspools."
-text2="I find beautiful language necessary but not sufficient."
-text3="But if a sentence is only beautiful, and doesn't stretch for anything more, I feel admiration but not love. After all, there are millions of gorgeous lines of prose, and we only have so much attention."
-sample=nlp_funcs.pos_tokenize_spaced(text1)
-result=simplify(sample)
-print(result)
-
-end=time.time()
-print("Runtime={}".format(end-start))
