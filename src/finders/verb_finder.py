@@ -46,7 +46,7 @@ def find_only_verb(text,pos):
     __final_vb_indexes=[]
 
     for i in list(range(0,len(__pos))):
-        if __pos[i][1] == "VERB":
+        if __pos[i][1] == "VERB" or __pos[i][1] == "AUX":
             __vb_indexes.append(i)
     
     if __vb_indexes==[]:

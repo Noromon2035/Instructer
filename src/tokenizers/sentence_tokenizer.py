@@ -10,8 +10,11 @@ def convert(text,pos):
 
     __tokens["clauses"]=clause_tokenizer.tokenize(text, pos)
 
-    for token in __tokens["clauses"]:
-        temp_clause=pos_to_string_converter.convert(token)
+    for clause in __tokens["clauses"]:
+        temp_clause=[]
+        for token in clause:
+            text_token=pos_to_string_converter.convert(token)
+            temp_clause.append(text_token)
         __clauses.append(temp_clause)
     
     print("\nSentence structures were found.")

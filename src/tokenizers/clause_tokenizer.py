@@ -72,6 +72,7 @@ def process_clause(conj_index,conj_index_consecutive, pos):
 
     resulting_clauses=[]
     legit_prep_indices=[]
+    consecutives=[]
 
     for i in list(range(0, len(conj_index))):
         temp_next_clause=[]
@@ -89,12 +90,15 @@ def process_clause(conj_index,conj_index_consecutive, pos):
         
         temp_center_index=temp_indexes.index(conj_index[i])  
 
+        #appending previous clause
         if temp_center_index-1 >=0:
             for j in list(range(temp_indexes[temp_center_index-1], temp_indexes[temp_center_index])):
                 temp_prev_clause.append(pos[j])
         else:
             for j in list(range(0, temp_indexes[temp_center_index])):
                 temp_prev_clause.append(pos[j])
+
+        #appending previous clause
         if temp_center_index+1 < len(temp_indexes):
             temp_pos=pos[temp_indexes[temp_center_index+1]]
             if temp_pos[2]=="RB" or temp_pos[0] in clause_seperators:
@@ -117,9 +121,11 @@ def process_clause(conj_index,conj_index_consecutive, pos):
             for token in temp_next_clause:
                 if token[1]=="VERB" or token[1]=="AUX":
                     legit_prep_indices.append(conj_index[i])
+                    consecutives.append(conj_index_consecutive[i])
                     print("Index: " + str(conj_index[i]))
                     break
-    
+
+    #getting all phrases including prepositions seperarted
     next_index=0
     for i in list(range(0,len(legit_prep_indices))):
         index=legit_prep_indices[i]
@@ -128,11 +134,13 @@ def process_clause(conj_index,conj_index_consecutive, pos):
         else:
             next_index=len(pos)-1
         if i==0:
-            resulting_clauses.append(pos[0:index])
-            resulting_clauses.append(pos[index:next_index])    
+            resulting_clauses.append([[],pos[0:index]])
+            prep_phrase=pos[index:consecutives[i][-1][-1]+1]
+            resulting_clauses.append([prep_phrase, pos[consecutives[i][-1][-1]+1:next_index]])    
         else:
-            resulting_clauses.append(pos[index:next_index])
-    print("\nClauses were found: ")
+            prep_phrase=pos[index:consecutives[i][-1][-1]+1]
+            resulting_clauses.append([prep_phrase, pos[consecutives[i][-1][-1]+1:next_index]]) 
+
     if resulting_clauses ==[]:
         return [pos]
     else:
@@ -141,7 +149,7 @@ def process_clause(conj_index,conj_index_consecutive, pos):
 def tokenize(text, pos):
     __pos=pos
     __clauses=[]
-    __conj_index=[]
+    __conj_index=[]    
 
     #First find all clause seperators
     for i in list(range(0, len(__pos))):
@@ -165,10 +173,12 @@ def tokenize(text, pos):
                 consecutive.append(index+count-1)
                 count-=1
         if index not in consecutive_indeces:
-            result_indeces_w_consecutive.append([index,consecutive])
+            result_indeces_w_consecutive.append([index,consecutive[::-1]])
         current+=1
     result_indices=[x for x in __conj_index if x not in consecutive_indeces]
     __clauses=process_clause(result_indices,result_indeces_w_consecutive, __pos)
-    print(__clauses)
+    print("\nClauses were found: ")
+    for clause in __clauses:
+        print()
+        print(clause)
     return __clauses
-

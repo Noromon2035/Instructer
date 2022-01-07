@@ -120,8 +120,12 @@ def check_prep_role(prep):
     else:
         time_regex=r"\d+:\d+"
         date_regex=r"\d+[/-]\d+[/-]\d+"
+        gerund_regex=r"by \w+ing"
         if re.findall(time_regex,prep[1])!=[] or re.findall(date_regex,prep[1])!=[]:
             prep[2]="when"
+            return prep
+        if re.findall(gerund_regex,prep[1])!=[]:
+            prep[2]="how"
             return prep
         else:
             pos=pos_tokenizer.pos_tokenize(prep[1])
