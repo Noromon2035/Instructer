@@ -1,12 +1,13 @@
-print("Importing " + __file__)
-import re
-from nlps import nlp_matcher
-from tokenizers import pos_tokenizer
-from finders import noun_phrase_finder
-from finders import verb_finder
-from converters import pos_to_string_converter
-print("Finished importing " + __file__)
-
+try:
+    import re
+    from nlps import nlp_matcher
+    from tokenizers import pos_tokenizer
+    from finders import noun_phrase_finder
+    from finders import verb_finder
+    from converters import pos_to_string_converter
+except Exception as e:
+    print(e)
+    
 def check(text):
     voice_mode={}
     text=re.search(r"\w.*",text).group()
@@ -37,7 +38,7 @@ def check(text):
         phrase_before=pos_to_string_converter.convert(phrase_before_token)        
         noun_phrases=noun_phrase_finder.find(phrase_before)
         #convert imperative into passive
-        if noun_phrases == [] and __pos[__verb[0]][3]==__pos[__verb[0]][0].lower():
+        if (noun_phrases == [] or __pos[0][1]=="ADP") and __pos[__verb[0]][3]==__pos[__verb[0]][0].lower():
                 print("The sentence is imperative.")
                 if __pos[-1][0]=="?":
                     __pos[-1][0]="."
@@ -46,6 +47,8 @@ def check(text):
                     __pos.append(['.','PUNCT','.'])
                 __pos[__verb[0]][0]=__pos[__verb[0]][3]
 
+                #phrase_after_token=[__pos[i] for i in list(range(__verb[0],len(__pos)))]
+                
                 try:
                     phrase_before_token[0][0]=phrase_before_token[0][0].lower()
                     if phrase_before_token[-1][1]=="PUNCT":
@@ -54,9 +57,11 @@ def check(text):
                     print("No phrases found before verb")
 
                 phrase_after_token=[__pos[i] for i in list(range(__verb[0],len(__pos)))]
-                if phrase_after_token[-1][1]=="PUNCT":
-                    for token in phrase_before_token:
-                        phrase_after_token.insert(-1, token)
+                if phrase_before_token != [] and phrase_after_token!=[]:
+                    if phrase_after_token[-1][1]=="PUNCT" and phrase_before_token[0][1]=="ADP":
+                        for token in phrase_before_token:
+                            phrase_after_token.insert(-1, token)
+
                 __passive_result="You are tasked to " + pos_to_string_converter.convert(phrase_after_token) 
 
         else:
@@ -94,7 +99,7 @@ def check(text):
 def is_interrogative(pos):
     #Criteria: 5W1H or AUX pos
     question_words=("who","when","what","where","why","whose","how")
-    if pos[0][0] in question_words or pos[0][1] == "AUX":
+    if (pos[0][0].lower() in question_words or pos[0][1] == "AUX") and pos[0][0].lower() not in ("do","don't"):
         return True
     else:
         return False
