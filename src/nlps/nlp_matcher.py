@@ -1,6 +1,9 @@
-import spacy
-from spacy.matcher import Matcher
-
+try:
+    import spacy
+    from spacy.matcher import Matcher
+except Exception as e:
+    print(e)
+    
 nlp = spacy.load("en_core_web_sm")
 
 def match(text, pattern):
