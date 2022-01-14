@@ -1,7 +1,12 @@
-from finders import synsets_finder
-
+try:
+    import re
+    from finders import synsets_finder
+except Exception as e:
+    print(e)
+    
 verb_tags=("VERB","AUX")
 before_verb_tags=("VERB","AUX","PART")
+modals=("can","could","should","shall","would","will","must","may","might")
 
 def find(text,pos):
     __pos=pos
@@ -46,7 +51,7 @@ def find_only_verb(text,pos):
     __final_vb_indexes=[]
 
     for i in list(range(0,len(__pos))):
-        if __pos[i][1] == "VERB" or __pos[i][1] == "AUX":
+        if __pos[i][0] not in modals and (__pos[i][1] == "VERB" or __pos[i][1] == "AUX" or re.findall("n't$",__pos[i][0])):
             __vb_indexes.append(i)
     
     if __vb_indexes==[]:
@@ -113,7 +118,10 @@ def verb_finder_backup(pos):
                 __probable_verb_index=index-1
         except:
             continue
-    pos[__probable_verb_index][1]="VERB"
-    pos[__probable_verb_index][2]="VB"
+    try:
+        pos[__probable_verb_index][1]="VERB"
+        pos[__probable_verb_index][2]="VB"
+    except:
+        pos=[]
     return pos
     

@@ -1,7 +1,8 @@
-print("Importing " + __file__)
-import spacy
-print("Finished importing " + __file__ +"\n")
-
+try:
+    import spacy
+except Exception as e:
+    print(e)
+    
 nlp = spacy.load("en_core_web_sm")
 
 def find(text):
