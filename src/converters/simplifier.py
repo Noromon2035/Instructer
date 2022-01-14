@@ -1,23 +1,17 @@
-import pyinflect
-import statistics
-from gensim.models import KeyedVectors
-from nltk.corpus import wordnet as wn
-from nltk.corpus import stopwords
-
-from tokenizers import pos_tokenizer
-from converters import pos_to_string_converter
+try:
+    import pyinflect
+    import statistics
+    from gensim.models import KeyedVectors
+    from nltk.corpus import wordnet as wn
+    from nltk.corpus import stopwords
+    from tokenizers import pos_tokenizer
+    from converters import pos_to_string_converter
+except Exception as e:
+    print(e)
 
 sw = stopwords.words('english')
 wordnet_pos=("NOUN","VERB","ADV","ADJ")
 wordvec = KeyedVectors.load("instruct_vector.wordvectors", mmap='r')
-
-def read_text_file(file_paths):
-    print("Reading text file...")
-    doc=""
-    for path in file_paths:
-        with open(path, 'r') as f:
-            doc+=f.read()
-    return doc
 
 def spacy_pos_to_wordnet(tag):
     if tag=="NOUN":
@@ -83,10 +77,9 @@ def best_synonym_2(orig_token,tokens,pos):
             else:
                 return token[0]
 
-def simplify(pos):
+def simplify(pos,doc):
     pos_without_sw = [token for token in pos if token[0].lower() not in sw and token[1] in wordnet_pos]
     indexes_without_sw = [i for i in list(range(0,len(pos))) if pos[i][0].lower() not in sw and pos[i][1] in wordnet_pos]
-    doc=read_text_file(["model-vocab-1.txt","model-vocab-2.txt","model-vocab-3.txt"])
 
     for i in list(range(0,len(pos_without_sw))):
         pos_without_sw[i].append(i)
