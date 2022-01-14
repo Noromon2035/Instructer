@@ -1,4 +1,5 @@
 #region Single Prepositions
+
 single_prepositions=[['from', 'whose'], ['from', 'whom'], ['from', 'who'], ['from', 'what'], 
 ['alongside', 'who'], ['except', 'who'], ['about', 'who'], ['against', 'who'], 
 ['alongside', 'who'], ['besides', 'who'], ['concerning', 'who'], ['concerning', 'who'], 
@@ -67,11 +68,15 @@ complex_prepositions=[['along with', 'who'], ['along with', 'what'], ['along wit
 
 question_words=("person","what","place","when","why","how","whose","whom")
 
-import re
-
-from tokenizers import pos_tokenizer
-
-from gensim.models import KeyedVectors
+try:
+    import re
+    from finders import noun_phrase_finder
+    from tokenizers import pos_tokenizer
+    from gensim.models import KeyedVectors
+    from tokenizers import pos_tokenizer
+except Exception as e:
+    print(e)
+    
 wordvec = KeyedVectors.load("instruct_vector.wordvectors", mmap='r')
 
 def partition(arr,low,high):
@@ -100,6 +105,17 @@ def convert_token(tokens,first,last):
         else:
             phrase+=tokens[j]
     return phrase
+
+def search_prep_func(phrase):
+    result=phrase
+    for prep in single_prepositions:
+        if prep[0]==phrase[0].lower():
+            result.append(prep[1])
+    if len(result)<=3:
+        for prep in complex_prepositions:
+            if prep[0]==phrase[0].lower():
+                result.append(prep[1])
+    return result
 
 def search_prep_func(phrase):
     result=phrase
@@ -157,7 +173,31 @@ def check_prep_role(prep):
             prep[2]=highest[0]
             return prep
 
-def tokenize(text):
+def check_non_prep_role(prep,is_pred):
+    if is_pred==False:
+        if len(re.split(r"[^a-zA-Z0-9_'-:/]",prep[1]))>1:
+            prep[2]="what"
+        else:
+            prep[2]=""
+    else:
+        poss=pos_tokenizer.pos_tokenize(prep[1])
+        count=0
+        vb_index=0
+        for pos in poss:
+            if pos[1]=="VERB":
+                vb_index=count
+                break
+            count+=1
+        if len(poss[vb_index:])<2:
+            prep[2]=""
+        elif poss[vb_index:][1][1]=="PUNCT":
+            prep[2]=""
+        else:
+            prep[2]="what"
+
+    return prep
+
+def tokenize(text,is_predicate=True):
     found_indexes=set()
     found_prepositions=[]
     tokens=re.split(r"[^a-zA-Z0-9_'-:/]",text)
@@ -184,7 +224,7 @@ def tokenize(text):
                         break
                 if is_appendable==True:
                     for prep in single_prepositions:
-                        if phrase[0].lower()==prep[0] and phrase not in found_prepositions:
+                        if phrase[0].lower()==prep[0] and phrase not in  found_prepositions:
                             phrase=search_prep_func(phrase)
                             found_prepositions.append(phrase)
                             for i in list(range(phrase[1],phrase[2]+1)):
@@ -206,7 +246,8 @@ def tokenize(text):
     
     #arrange set in numerical order of indexes
     if len(found_prepositions)<=0:
-        return None
+        result=check_non_prep_role(["",text,[""]],is_predicate)
+        return [result]
     quicksort_prep(found_prepositions,0,len(found_prepositions)-1)
 
     #get prepositional phrases and before it
@@ -226,12 +267,19 @@ def tokenize(text):
         else:
             for j in list(range(0,found_prepositions[i][1])):
                 before_prep_tokens.append(tokens[j])
+            before_prep_phrase=convert_token(before_prep_tokens,0,len(before_prep_tokens))
+            prep_phrases.append(["",before_prep_phrase,[""]])
         prep_phrase=convert_token(prep_phrase_tokens,0,len(prep_phrase_tokens))
         before_prep_phrase=convert_token(before_prep_tokens,0,len(before_prep_tokens))
         prep_phrases.append([before_prep_phrase,prep_phrase,found_prepositions[i][3:]])
 
+    count=0
     for phrase in prep_phrases:
-        check_prep_role(phrase)
+        if count==0:
+            check_non_prep_role(phrase,is_predicate)
+        else:
+            check_prep_role(phrase)
+        count+=1
     print(prep_phrases)
     return prep_phrases
 
