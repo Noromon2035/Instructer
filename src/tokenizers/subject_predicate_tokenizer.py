@@ -1,7 +1,8 @@
-print("Importing " + __file__)
-from converters import pos_to_string_converter
-from finders import verb_finder
-print("Finished importing " + __file__)
+try:
+    from converters import pos_to_string_converter
+    from finders import verb_finder
+except Exception as e:
+    print(e)
 
 verb_tags=("VERB","AUX")
 def tokenize(text,pos):
@@ -12,6 +13,8 @@ def tokenize(text,pos):
     __pos=pos
 
     __final_vb_indexes=verb_finder.find(text, __pos)
+    if __final_vb_indexes==[]:
+        return
     
     for i in list(range(0,__final_vb_indexes[0])):
         __subj.append(__pos[i])
