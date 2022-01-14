@@ -1,7 +1,8 @@
-print("Importing " + __file__)
-from tokenizers import clause_tokenizer
-from converters import pos_to_string_converter
-print("Finished importing " + __file__)
+try:
+    from tokenizers import clause_tokenizer
+    from converters import pos_to_string_converter
+except Exception as e:
+    print(e)
 
 def convert(text,pos):
 
