@@ -1,0 +1,241 @@
+#:kivy 1.10.1
+WindowManager:
+    ResultWindow:
+    MainWindow:
+    LoadingWindow:
+
+<MainWindow>:
+    name: "main"
+    instruction_input: instruction_input
+    receiver_input: receiver_input
+    enter_instruction: enter_instruction
+
+    canvas.before:
+        Color:
+            rgba: (1, 1, 1, 1)
+        Rectangle:
+            source:'Interface(1).png'
+            size: root.width, root.height
+            pos: self.pos
+
+    GridLayout:
+        cols:1
+        size: root.width, root.height
+
+        Label:
+            text: "Instructer"
+            text_size: self.size
+            font_name: "Lucidity-Expand.ttf"
+            font_size: 60
+            padding_x: 25
+            padding_y: 50
+            halign: "left"
+            valign: "bottom"
+            shorten: True
+
+        GridLayout:
+            cols:1
+            padding: [130,0,200,35]
+            
+            TextInput:
+                id: instruction_input
+                hint_text: "Type/paste your instructions here"
+                hint_text_color: [1,1,1,0.8]
+                text_size: self.size
+                foreground_color: [1,1,1,1]
+                font_size: 20
+                font_name: "Anonymous Pro.ttf"
+                valign: "bottom"
+                shorten: True
+
+                multiline: True
+                pos_hint: {"x":0.2}
+                padding_x: 30
+                padding_y:20
+
+                background_active: "roundedrect.png"
+                background_normal: "roundedrect.png"
+                background_disabled_normal: "roundedrect.png"
+                border: (1,9,1,9)
+
+            Label:
+                text: "Receiver"
+                text_size: self.size
+                font_size: 30
+                font_color: [1,1,1,1]
+                font_name: "Anonymous Pro.ttf"
+                halign: "left"
+                valign: "middle"
+                shorten: True
+                padding_x: 10
+                
+            TextInput:
+                id: receiver_input
+                text:"anyone"
+                hint_text: "Optional"
+                hint_text_color: [1,1,1,0.8]
+                foreground_color: [1,1,1,1]
+                text_size: self.size
+                font_size: 20
+                font_name: "Anonymous Pro.ttf"
+                valign: "bottom"
+                shorten: True
+
+                multiline: True
+                pos_hint: {"x":0.2}
+                padding_x: 30
+                padding_y:20
+
+                background_active: "roundedrect.png"
+                background_normal: "roundedrect.png"
+                background_disabled_normal: "roundedrect.png"
+                border: (1,9,1,9)
+        
+        GridLayout:
+            cols: 1
+            padding: [670,70,70,70]
+            Button:
+                id: enter_instruction
+
+                text: "ENTER"
+                color: [0,0,0,1]
+                halign: "center"
+                valign: "middle"
+                text_size: self.size
+                font_size: 30
+                font_name:"FontsFree-Net-Cubao_Free_Wide.ttf"
+
+                background_active: "enterbutton.png"
+                background_normal: "enterbutton.png"
+                background_disabled_normal: "enterbutton.png"
+                border: (1,2,1,2)
+
+                #on_release: app.root.current = "loading"
+                on_release: root.check_input()
+    
+
+<LoadingWindow>:
+    name: "loading"
+    progress_bar: progress_bar
+
+    canvas.before:
+        Color:
+            rgba: (1, 1, 1, 1)
+        Rectangle:
+            source:'Interface(2).png'
+            size: root.width, root.height
+            pos: self.pos
+    
+    GridLayout:
+        cols:1
+        size: root.width, root.height
+        padding: [250,300,250,300]
+
+        GridLayout:
+            cols:1
+
+            Label:
+                text: "Processing..."
+                text_size: self.size
+                font_size: 50
+                color: [0,0,0.7,1]
+                valign: "bottom"
+                halign: "center"
+
+            ProgressBar:
+                id: progress_bar
+                max: 100
+                value: 0
+
+<ResultWindow>:
+    name: "result"
+    result_output: result_output
+    notes_output: notes_output
+
+    canvas.before:
+        Color:
+            rgba: (1, 1, 1, 1)
+        Rectangle:
+            source:'Interface(3).png'
+            size: root.width, root.height
+            pos: self.pos
+
+    GridLayout:
+        cols:1
+
+        GridLayout:
+            cols:1
+            padding: [50,70,50,0]
+            Label:
+                size_hint_y:None
+                height:50
+                text: "RESULT"
+                text_size: self.size
+                font_name: "Lucidity-Expand.ttf"
+                font_size: 30
+                halign: "left"
+                valign: "top"
+                shorten: True
+                color: [0,0,0.7,1]
+            
+            GridLayout:
+                cols:1
+                padding: [0,0,0,0]
+
+                TextInput:
+                    id: result_output
+                    text_size: self.size
+                    foreground_color: [0,0,0.7,1]
+                    font_size: 25
+                    font_name: "Anonymous Pro.ttf"
+                    valign: "bottom"
+                    shorten: True
+
+                    multiline: True
+                    padding_x: 30
+                    padding_y:20
+
+                    background_active: "result box.png"
+                    background_normal: "result box.png"
+                    background_disabled_normal: "result box.png"
+                    border: (1,3.75,1,3.75)
+
+        GridLayout:
+            cols:1
+            size_hint_y:None
+            height:330
+            cols:1
+            padding: [50,30,50,0]
+            Label:
+                size_hint_y:None
+                height:50
+                text: "Notes"
+                text_size: self.size
+                font_name: "Lucidity-Expand.ttf"
+                font_size: 30
+                halign: "left"
+                valign: "top"
+                shorten: True
+                color: [0,0,0.7,1]
+            
+            GridLayout:
+                cols:1
+                padding: [0,0,0,60]
+
+                TextInput:
+                    id: notes_output
+                    text_size: self.size
+                    foreground_color: [1,1,1,1]
+                    font_size: 25
+                    font_name: "Anonymous Pro.ttf"
+                    valign: "bottom"
+                    shorten: True
+
+                    multiline: True
+                    padding_x: 30
+                    padding_y:20
+
+                    background_active: "notes box.png"
+                    background_normal: "notes box.png"
+                    background_disabled_normal: "notes box.png"
+                    border: (1,5,1,5)
