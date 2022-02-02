@@ -35,7 +35,7 @@ single_prepositions=[['from', 'whose'], ['from', 'whom'], ['from', 'who'], ['fro
 ['unlike', 'how'], ['upon', 'how'], ['via', 'how'], ['with', 'how'], ['without', 'how'], 
 ['bar', 'what'], ['despite', 'how'], ['given', 'how'], ['given', 'what'], 
 ['pro', 'what'], ['pro', 'how'], ['save', 'how'], ['save', 'what'], ['saving', 'how'], 
-['saving', 'what'], ['of', 'when']]
+['saving', 'what'], ['of', 'when'],["using","how"]]
 #endregion
 
 #region Complex Prepositions
@@ -70,10 +70,8 @@ question_words=("person","what","place","when","why","how","whose","whom")
 
 try:
     import re
-    from finders import noun_phrase_finder
     from tokenizers import pos_tokenizer
     from gensim.models import KeyedVectors
-    from tokenizers import pos_tokenizer
 except Exception as e:
     print(e)
     
@@ -128,7 +126,7 @@ def search_prep_func(phrase):
                 result.append(prep[1])
     return result
 
-def check_prep_role(prep):
+def check_prep_role(nlp,prep):
     if len(prep[2])<=1:
         print("\n"+prep[1])
         prep[2]=prep[2][0]
@@ -144,7 +142,7 @@ def check_prep_role(prep):
             prep[2]="how"
             return prep
         else:
-            pos=pos_tokenizer.pos_tokenize(prep[1])
+            pos=pos_tokenizer.pos_tokenize(nlp,prep[1])
             similarities=[]
             for quest_word in question_words:
                 highest_similarity=-1
@@ -173,14 +171,14 @@ def check_prep_role(prep):
             prep[2]=highest[0]
             return prep
 
-def check_non_prep_role(prep,is_pred):
+"""def check_non_prep_role(nlp,prep,is_pred):
     if is_pred==False:
         if len(re.split(r"[^a-zA-Z0-9_'-:/]",prep[1]))>1:
             prep[2]="what"
         else:
             prep[2]=""
     else:
-        poss=pos_tokenizer.pos_tokenize(prep[1])
+        poss=pos_tokenizer.pos_tokenize(nlp,prep[1])
         count=0
         vb_index=0
         for pos in poss:
@@ -195,9 +193,9 @@ def check_non_prep_role(prep,is_pred):
         else:
             prep[2]="what"
 
-    return prep
+    return prep"""
 
-def tokenize(text,is_predicate=True):
+def tokenize(nlp,text,is_predicate=True):
     found_indexes=set()
     found_prepositions=[]
     tokens=re.split(r"[^a-zA-Z0-9_'-:/]",text)
@@ -245,9 +243,6 @@ def tokenize(text,is_predicate=True):
                                 found_indexes.add(i)
     
     #arrange set in numerical order of indexes
-    if len(found_prepositions)<=0:
-        result=check_non_prep_role(["",text,[""]],is_predicate)
-        return [result]
     quicksort_prep(found_prepositions,0,len(found_prepositions)-1)
 
     #get prepositional phrases and before it
@@ -268,18 +263,24 @@ def tokenize(text,is_predicate=True):
             for j in list(range(0,found_prepositions[i][1])):
                 before_prep_tokens.append(tokens[j])
             before_prep_phrase=convert_token(before_prep_tokens,0,len(before_prep_tokens))
-            prep_phrases.append(["",before_prep_phrase,[""]])
+            if before_prep_tokens[-1][0][-1]=="^":
+                prep_phrases.append(["",before_prep_phrase,""])
+            else:
+                prep_phrases.append(["",before_prep_phrase,"what"])
         prep_phrase=convert_token(prep_phrase_tokens,0,len(prep_phrase_tokens))
         before_prep_phrase=convert_token(before_prep_tokens,0,len(before_prep_tokens))
         prep_phrases.append([before_prep_phrase,prep_phrase,found_prepositions[i][3:]])
 
+    if len(prep_phrases)<=0:
+        dir_obj=re.search(r"\^\s+\w+",text)
+        if dir_obj!=None:
+            return [["",text,"what"]]
+        return [["",text,""]]
     count=0
     for phrase in prep_phrases:
-        if count==0:
-            check_non_prep_role(phrase,is_predicate)
-        else:
-            check_prep_role(phrase)
+        check_prep_role(nlp,phrase)
         count+=1
+    
     print(prep_phrases)
     return prep_phrases
 

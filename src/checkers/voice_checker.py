@@ -10,19 +10,11 @@ except Exception as e:
 def check(nlp,text,pos):
     voice_mode={}
     text=re.search(r"\w.*",text).group()
-    __passive_result=""
-    __active_result=""
     __pos=pos
     __verb=[]
 
     if is_interrogative(__pos): #convert interrogative to imperative
             print("The sentence is interrogative.")
-            if __pos[-1][1]!="PUNCT":
-                __pos.append(['?','PUNCT','?'])
-            __pos[0][0]=__pos[0][0].title()
-            __result=pos_to_string_converter.convert(__pos)
-            __passive_result=__result
-            __active_result= __result
             voice_mode["is_imperative"]=False
 
     else:
@@ -34,31 +26,10 @@ def check(nlp,text,pos):
             phrase_before_token=[__pos[i] for i in list(range(0,__verb[0]))]
         phrase_before=pos_to_string_converter.convert(phrase_before_token)        
         noun_phrases=noun_phrase_finder.find(nlp,phrase_before)
+
         #convert imperative into passive
         if (noun_phrases == [] or __pos[0][1]=="ADP") and __pos[__verb[0]][3]==__pos[__verb[0]][0].lower():
                 print("The sentence is imperative.")
-                if __pos[-1][0]=="?":
-                    __pos[-1][0]="."
-                    __pos[-1][2]="."
-                if __pos[-1][1]!="PUNCT":
-                    __pos.append(['.','PUNCT','.'])
-                __pos[__verb[0]][0]=__pos[__verb[0]][3]
-                
-                try:
-                    phrase_before_token[0][0]=phrase_before_token[0][0].lower()
-                    if phrase_before_token[-1][1]=="PUNCT":
-                        phrase_before_token.pop()
-                except:
-                    print("No phrases found before verb")
-
-                phrase_after_token=[__pos[i] for i in list(range(__verb[0],len(__pos)))]
-                if phrase_before_token != [] and phrase_after_token!=[]:
-                    if phrase_after_token[-1][1]=="PUNCT" and phrase_before_token[0][1]=="ADP":
-                        for token in phrase_before_token:
-                            phrase_after_token.insert(-1, token)
-
-                __passive_result="You are tasked to " + pos_to_string_converter.convert(phrase_after_token) 
-                __active_result= __passive_result[18].upper()+__passive_result[19:]
                 voice_mode["is_imperative"]=True
 
         else:
@@ -67,29 +38,12 @@ def check(nlp,text,pos):
 
             if len(matches)>0:
                 print("The sentence is in imperative passive form.")
-                if __pos[-1][0]=="?":
-                    __pos[-1][0]="."
-                    __pos[-1][2]="."
-                if __pos[-1][1]!="PUNCT":
-                    __pos.append(['.','PUNCT','.'])
-                __pos[0][0]=__pos[0][0].title()
-                __passive_result=pos_to_string_converter.convert(__pos)
-                __active_result= __passive_result[18].upper()+__passive_result[19:]
                 voice_mode["is_imperative"]=True
 
             else:
                 print("The sentence is declarative.")
-                if __pos[-1][1]!="PUNCT":
-                    __pos.append(['.','PUNCT','.'])
-                __pos[0][0]=__pos[0][0].title()
-                __result=pos_to_string_converter.convert(__pos)
-                __passive_result="You are tasked to " +__result
-                __active_result= __passive_result[18].upper()+__passive_result[19:]
                 voice_mode["is_imperative"]=False
 
-    voice_mode["active"]=__active_result
-    voice_mode["passive"]=__passive_result
-    print(voice_mode)
     return voice_mode
     
 def is_interrogative(pos):

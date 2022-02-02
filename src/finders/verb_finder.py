@@ -72,7 +72,6 @@ def find_only_verb(text,pos):
             __final_vb_indexes.append(__vb_indexes[i])
 
     
-    print(__final_vb_indexes)
     return __final_vb_indexes
 
 def find_only_verb_question(text,pos):

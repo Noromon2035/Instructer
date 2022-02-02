@@ -1,82 +1,110 @@
-print("Importing " + __file__)
-from checkers import grammar_checker_lt
-print("Importing grammar checker")
-from checkers import voice_checker
-print("Importing voice checker")
-from converters import simplifier
-print("Importing simplifier")
-from tokenizers import preposition_tokenizer as prt
+print("Importing spacy")
+import spacy
+from spacy.tokenizer import Tokenizer
+from spacy.lang.char_classes import ALPHA, ALPHA_LOWER, ALPHA_UPPER, CONCAT_QUOTES, LIST_ELLIPSES, LIST_ICONS
+from spacy.util import compile_infix_regex
+
 print("Importing preposition tokenizer")
-from tokenizers import pos_tokenizer
-print("Importing pos tokenizer")
-from tokenizers import sentence_tokenizer as st
+from tokenizers import preposition_tokenizer as prt
 print("Importing sentence tokenizer")
-from tokenizers import subject_predicate_tokenizer as spt
+from tokenizers import sentence_tokenizer as st
 print("Importing sp tokenizer")
-from formatters import instruction_formatter
+from tokenizers import subject_predicate_tokenizer as spt
 print("Importing instruction formatter")
-from formatters import question_formatter
-print("Importing question formatter")
-print("Finished importing " + __file__)
+from formatters import instruction_formatter
+from tokenizers import pos_tokenizer
 
-def read_text_file(file_paths):
-    print("Reading text file...")
-    doc=""
-    for path in file_paths:
-        with open(path, 'r') as f:
-            doc+=f.read()
-    return doc
 
-def analyze(instruction,receiver):
-    doc=read_text_file(["model-vocab-1.txt","model-vocab-2.txt","model-vocab-3.txt"])
-    text=grammar_checker_lt.check(instruction)
-    __sentences=[]
-    __result_sentences=[]
-    __pos=pos_tokenizer.pos_tokenize(text)
-    print(__pos)
-    print()
-    __sentences=st.convert(text, __pos)    
-    #main.change_max((len(__sentences)*4)+2)
-    #main.update_progress(1)
-    print("\n\n\n\n\n")
-    for sentence_token in __sentences:
-        __answered_questions=set()
-        sentence=sentence_token[1]
-        __sent_pos=pos_tokenizer.pos_tokenize(sentence)
-        __simplfied=simplifier.simplify(__sent_pos,doc)
-        #main.update_progress(1)
 
-        __simplfied_pos=pos_tokenizer.pos_tokenize(__simplfied)
-        print(__simplfied)
-        subj_pred=spt.tokenize(__simplfied,__simplfied_pos)
-        #main.update_progress(1)
+class Analyzer():
+    def __init__(self):
+        pass
 
-        subj_prep=prt.tokenize(subj_pred["subject"],is_predicate=False)
-        #main.update_progress(1)
+    def read_text_file(self,file_paths):
+        print("Reading text file...")
+        doc=""
+        for path in file_paths:
+            with open(path, 'r') as f:
+                doc+=f.read()
+        return doc
+    
+    def custom_tokenizer(self,nlp):
+        infixes = (
+            LIST_ELLIPSES
+            + LIST_ICONS
+            + [
+                r"(?<=[0-9])[+\-\*^](?=[0-9-'])",
+                r"(?<=[{al}{q}])\.(?=[{au}{q}])".format(
+                    al=ALPHA_LOWER, au=ALPHA_UPPER, q=CONCAT_QUOTES
+                ),
+                r"(?<=[{a}]),(?=[{a}])".format(a=ALPHA),
+                #r"(?<=[{a}])(?:{h})(?=[{a}])".format(a=ALPHA, h=HYPHENS),
+                r"(?<=[{a}0-9])[:<>=/](?=[{a}])".format(a=ALPHA),
+            ]
+        )
 
-        if subj_prep != None:
-            for prep in subj_prep:
-                if prep[2]!="":
-                    __answered_questions.add(prep[2])
+        infix_re = compile_infix_regex(infixes)
+        exceptions=nlp.Defaults.tokenizer_exceptions
+        filtered_exceptions = {k:v for k,v in exceptions.items() if "'" not in k}
 
-        pred_prep=prt.tokenize(subj_pred["predicate"])
-        if pred_prep !=None:
-            for prep in pred_prep:
-                if prep[2]!="":
-                    __answered_questions.add(prep[2])
-        #main.update_progress(1)
+        return Tokenizer(nlp.vocab, prefix_search=nlp.tokenizer.prefix_search,
+                                    suffix_search=nlp.tokenizer.suffix_search,
+                                    infix_finditer=infix_re.finditer,
+                                    token_match=nlp.tokenizer.token_match,
+                                    rules=filtered_exceptions)
 
-        __imperatived=voice_checker.check(__simplfied)
-        __result_sentences.append([__imperatived["active"],__answered_questions,subj_pred["predicate"]])
-        print("\n")
+    def analyze(self,nlp, instruction,receiver):
+        __sentences=[]
+        __result_sentences=[]
+        __pos=pos_tokenizer.pos_tokenize(nlp,instruction)
+        
+        print("Dividing into sentences")
+        __sentences=st.convert(nlp,instruction, __pos)    
+        print("\n\n\n\n\n")
 
-    #main.max_progress()
-    result_instruction=instruction_formatter.format(__result_sentences)
-    result_instruction=question_formatter.construct_question(result_instruction,receiver)
-    for result in result_instruction:
-        print(result)
-    return result_instruction
+        try:
+            for sentence_coded in __sentences:
+                __answered_questions=set()
 
-#text1="Ok, so push your arm towards the bread, now squeeze the bread. Rip a bit of it off and put that in your mouth. Now move your jaw up and down repeatedly. Now swallow."
-#text1="Do not eat"
-#convert(text1,"Jomar")
+                imp_index=sentence_coded.find("`")
+                imperative_sent=""
+                if imp_index+1 < len(sentence_coded) and imp_index!=-1:
+                    imperative_sent=sentence_coded[imp_index+1:]
+                else:
+                    imperative_sent=sentence_coded
+                imperative_coded=imperative_sent
+                imperative_sent= imperative_sent.replace("^","")
+
+                imp_prep=prt.tokenize(nlp,imperative_coded)
+                if imp_prep !=None:
+                    for prep in imp_prep:
+                        if prep[2]!="":
+                            __answered_questions.add(prep[2])
+
+                if imp_index!=0:
+                    non_imperative_sent=sentence_coded[:imp_index]
+                    non_imp_prep=prt.tokenize(nlp,non_imperative_sent)
+                    for prep in non_imp_prep:
+                        if prep[2]!="":
+                            __answered_questions.add(prep[2])
+
+                __result_sentences.append([sentence_coded,__answered_questions])
+                print(sentence_coded,__answered_questions)
+                print("\n\n")
+            questions, instructions, notes=instruction_formatter.construct(__result_sentences,receiver)
+            print(questions, instructions, notes)
+        except:
+            return [],[instruction],[]
+        
+        return questions,instructions, notes
+
+if __name__ == "__main__":
+    text1="Ok, so push Mr. Antolin's arm(hand) towards the bread A.S.A.P, now squeeze the bread. Rip a bit of it off and put that in your mouth. Now move your jaw up and down repeatedly. Now swallow."
+    text2="Once it can be safely assumed that the base of the flour-based cake has reached a satisfactory level of cook, firmly grasp handle of your flipping leverage tool with flip-side up and thrust forward using shoulder, engaging glenohumeral joint for smooth motion. Then swallow."
+    analyzer=Analyzer()
+    print("Loading spacy nlp")
+    nlp = spacy.load("en_core_web_sm")
+    nlp.tokenizer = analyzer.custom_tokenizer(nlp)
+    result=analyzer.analyze(nlp,text2,"Jomar")
+    print("Result:")
+    print(result)

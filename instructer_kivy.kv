@@ -1,4 +1,5 @@
 #:kivy 1.10.1
+
 WindowManager:
     ResultWindow:
     MainWindow:
@@ -17,7 +18,7 @@ WindowManager:
             source:'Interface(1).png'
             size: root.width, root.height
             pos: self.pos
-
+    
     GridLayout:
         cols:1
         size: root.width, root.height
@@ -26,6 +27,7 @@ WindowManager:
             text: "Instructer"
             text_size: self.size
             font_name: "Lucidity-Expand.ttf"
+            
             font_size: 60
             padding_x: 25
             padding_y: 50
@@ -71,7 +73,6 @@ WindowManager:
                 
             TextInput:
                 id: receiver_input
-                text:"anyone"
                 hint_text: "Optional"
                 hint_text_color: [1,1,1,0.8]
                 foreground_color: [1,1,1,1]
@@ -116,7 +117,6 @@ WindowManager:
 
 <LoadingWindow>:
     name: "loading"
-    progress_bar: progress_bar
 
     canvas.before:
         Color:
@@ -141,16 +141,20 @@ WindowManager:
                 color: [0,0,0.7,1]
                 valign: "bottom"
                 halign: "center"
-
-            ProgressBar:
-                id: progress_bar
-                max: 100
-                value: 0
+            
+            Label:
+                text: "Please wait a minute"
+                text_size: self.size
+                font_size: 25
+                color: [0,0,0.7,1]
+                valign: "bottom"
+                halign: "center"
 
 <ResultWindow>:
     name: "result"
     result_output: result_output
     notes_output: notes_output
+    answers_input: answers_input
 
     canvas.before:
         Color:
@@ -219,7 +223,7 @@ WindowManager:
                 color: [0,0,0.7,1]
             
             GridLayout:
-                cols:1
+                cols:2
                 padding: [0,0,0,60]
 
                 TextInput:
@@ -239,3 +243,28 @@ WindowManager:
                     background_normal: "notes box.png"
                     background_disabled_normal: "notes box.png"
                     border: (1,5,1,5)
+                
+                TextInput:
+                    id: answers_input
+                    text_size: self.size
+                    foreground_color: [1,1,1,1]
+                    font_size: 25
+                    font_name: "Anonymous Pro.ttf"
+                    valign: "bottom"
+                    shorten: True
+
+                    multiline: True
+                    padding_x: 30
+                    padding_y:20
+
+                    background_active: "notes box.png"
+                    background_normal: "notes box.png"
+                    background_disabled_normal: "notes box.png"
+                    border: (1,5,1,5)
+                    
+                Label:
+                    text:""
+
+                Button:
+                    text: "RETURN"
+                    on_release: app.root.current = "main"

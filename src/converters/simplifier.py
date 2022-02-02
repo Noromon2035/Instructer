@@ -1,6 +1,7 @@
 try:
     import pyinflect
     import statistics
+    import json
     from gensim.models import KeyedVectors
     from nltk.corpus import wordnet as wn
     from nltk.corpus import stopwords
@@ -12,6 +13,9 @@ except Exception as e:
 sw = stopwords.words('english')
 wordnet_pos=("NOUN","VERB","ADV","ADJ")
 wordvec = KeyedVectors.load("instruct_vector.wordvectors", mmap='r')
+with open("occurences.json", "r") as fp:
+    occurences_json=json.load(fp)
+occur_quantile=11
 
 def spacy_pos_to_wordnet(tag):
     if tag=="NOUN":
@@ -77,7 +81,15 @@ def best_synonym_2(orig_token,tokens,pos):
             else:
                 return token[0]
 
-def simplify(pos,doc):
+def find_occurences(word):
+    count=0
+    try:
+        count=occurences_json[word]
+    except:
+        count=0
+    return count
+
+def simplify(nlp,pos):
     pos_without_sw = [token for token in pos if token[0].lower() not in sw and token[1] in wordnet_pos]
     indexes_without_sw = [i for i in list(range(0,len(pos))) if pos[i][0].lower() not in sw and pos[i][1] in wordnet_pos]
 
@@ -91,37 +103,46 @@ def simplify(pos,doc):
         tag=spacy_pos_to_wordnet(token[1])
         synonyms=wn.synsets(token[3].lower(), pos=tag)
 
-        #get all synonyms of each token as raw_string
-        raw_synonyms=set()
-        for syn in synonyms:
+        if find_occurences(token[3])>occur_quantile:
+            final_synonyms.append(token[3])
+        else:
+            #get all synonyms of each token as raw_string
+            print(token[3])
+            raw_synonyms=set()
             raw_synonyms.add(token[3])
-            raw_syns=syn.lemmas()
-            for raw_syn in raw_syns:
-                raw=str(raw_syn.name())
-                raw_synonyms.add(raw.replace("_"," "))            
-        
-        #find occurences of each tokens
-        synonym_tokens=[]
-        for syn in raw_synonyms:
-            occurences=doc.count("{} ".format(syn))
-            if occurences!=0:
-                synonym_tokens.append([syn,occurences])
-        
-        #choose the best synonym
-        final_synonym=best_synonym_2(token,synonym_tokens,pos_without_sw)
-        final_synonyms.append(final_synonym)
-        print("Best synonym: {}".format(final_synonym))
+            for syn in synonyms:
+                raw_syns=syn.lemmas()
+                for raw_syn in raw_syns:
+                    raw=str(raw_syn.name())
+                    raw_synonyms.add(raw.replace("_"," "))  
+                    
+            
+            #find occurences of each tokens
+            synonym_tokens=[]
+            for syn in raw_synonyms:
+                occurences=find_occurences(syn)
+                print(syn+":"+str(occurences))
+                if occurences!=0:
+                    synonym_tokens.append([syn,occurences])
+            
+            #choose the best synonym
+            final_synonym=best_synonym_2(token,synonym_tokens,pos_without_sw)
+            final_synonyms.append(final_synonym)
+        print("Best synonym: {}\n".format(final_synonyms[-1]))
 
     changed_pos=[] #[index,tag]
     for i in list(range(0,len(final_synonyms))):
+        #if lemma of orig not equal synonym
         if pos_without_sw[i][3]!=final_synonyms[i]:
             pos_without_sw[i][0],pos_without_sw[i][3]=final_synonyms[i],final_synonyms[i]
             changed_pos.append([pos_without_sw[i][5],pos_without_sw[i][2]])
 
     new_text=pos_to_string_converter.convert(pos)
-    doc_tokens=pos_tokenizer.tokenize(new_text)
+    doc_tokens=pos_tokenizer.tokenize(nlp,new_text)
     for token in changed_pos:
-        morphed=doc_tokens[token[0]]._.inflect(token[1])
-        if morphed !=None:
+        morphed=""
+        if pos[token[0]][0]!=pos[token[0]][3]:
+            morphed=doc_tokens[token[0]]._.inflect(token[1])
+        if morphed !=None and morphed!="":
             pos[token[0]][0]=morphed
     return pos_to_string_converter.convert(pos)

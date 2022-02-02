@@ -1,0 +1,327 @@
+#:kivy 1.10.1
+
+WindowManager:
+    StartUpWindow:
+    MainWindow:
+    LoadingWindow:
+    ResultWindow:
+    ErrorWindow:
+
+<StartUpWindow>:
+    name: "startup"
+
+    canvas.before:
+        Color:
+            rgba: (1, 1, 1, 1)
+        Rectangle:
+            source:'loading_background.jpg'
+            size: root.width, root.height
+            pos: self.pos
+    
+    GridLayout:
+        cols:1
+        size: root.width, root.height
+        padding: [250,300,250,300]
+
+        GridLayout:
+            cols:1
+
+            Label:
+                text: ""
+            
+            Label:
+                text: "Loading important resources..."
+                text_size: self.size
+                font_size: 25
+                color: [0,0,0.7,1]
+                valign: "bottom"
+                halign: "center"
+
+<MainWindow>:
+    name: "main"
+    instruction_input: instruction_input
+    receiver_input: receiver_input
+    enter_instruction: enter_instruction
+
+    canvas.before:
+        Color:
+            rgba: (1, 1, 1, 1)
+        Rectangle:
+            source:'main_background.jpg'
+            size: root.width, root.height
+            pos: self.pos
+    
+    FloatLayout:
+            
+        TextInput:
+            id: instruction_input
+            hint_text: "Type/paste your instructions here..."
+            hint_text_color: [0.1,0.1,0.1,0.8]
+            text_size: self.size
+            foreground_color: [0,0,0,1]
+            font_size: 20
+            font_name: "Anonymous Pro.ttf"
+            valign: "bottom"
+            shorten: True
+
+            multiline: True
+            size_hint: (0.70,0.187)
+            pos_hint: {"x":0.1,"y":0.5}
+            padding_x: 30
+            padding_y:20
+
+            background_active: "roundedrect(x4).png"
+            background_normal: "roundedrect(x4).png"
+            background_disabled_normal: "roundedrect(x4).png"
+            border: (1,4,1,4)
+
+        Label:
+            text: "Receiver"
+            text_size: self.size
+            font_size: 30
+            color: [0,0,0,1]
+            font_name: "Anonymous Pro.ttf"
+            halign: "left"
+            valign: "middle"
+            shorten: True
+            padding_x: 10
+
+            size_hint: (0.70,0.174)
+            pos_hint: {"x":0.1,"y":0.35}
+            
+        TextInput:
+            id: receiver_input
+            hint_text: "Optional..."
+            hint_text_color: [0.1,0.1,0.1,0.8]
+            foreground_color: [0,0,0,1]
+            text_size: self.size
+            font_size: 20
+            font_name: "Anonymous Pro.ttf"
+            valign: "top"
+            shorten: True
+
+            multiline: False
+            size_hint: (0.70,0.101)
+            pos_hint: {"x":0.1,"y":0.3}
+            padding_x: 30
+            padding_y: 25
+
+            background_active: "roundedrect.png"
+            background_normal: "roundedrect.png"
+            background_disabled_normal: "roundedrect.png"
+            border: (1,8,1,8)
+        
+        Button:
+            id: enter_instruction
+
+            size_hint: (0.25,0.125)
+            pos_hint: {"x": 0.65,"y": 0.12}
+
+            text: "ENTER"
+            color: [0,0,0,1]
+            halign: "center"
+            valign: "middle"
+            text_size: self.size
+            font_size: 30
+            font_name:"FontsFree-Net-Cubao_Free_Wide.ttf"
+
+            background_active: "enterbutton.png"
+            background_normal: "enterbutton.png"
+            background_disabled_normal: "enterbutton.png"
+            border: (1,2,1,2)
+
+            #on_release: app.root.current = "loading"
+            on_release: root.check_input()
+    
+
+<LoadingWindow>:
+    name: "loading"
+    status: status
+
+    canvas.before:
+        Color:
+            rgba: (1, 1, 1, 1)
+        Rectangle:
+            source:'loading_background.jpg'
+            size: root.width, root.height
+            pos: self.pos
+    
+    GridLayout:
+        cols:1
+        size: root.width, root.height
+        padding: [250,300,250,300]
+
+        GridLayout:
+            cols:1
+
+            Label:
+                text: ""
+            
+            Label:
+                id: status
+                text: "Please wait a few seconds"
+                text_size: self.size
+                font_size: 25
+                color: [0.16,0.14,0.2,1]
+                valign: "bottom"
+                halign: "center"
+
+<ResultWindow>:
+    name: "result"
+    result_output: result_output
+    notes_output: notes_output
+    answers_input: answers_input
+    question_title: question_title
+
+    canvas.before:
+        Color:
+            rgba: (1, 1, 1, 1)
+        Rectangle:
+            source:'result_background.png'
+            size: root.width, root.height
+            pos: self.pos
+
+    FloatLayout:
+
+        TextInput:
+            id: result_output
+            text_size: self.size
+            foreground_color: [0,0,0,1]
+            font_size: 25
+            font_name: "Anonymous Pro.ttf"
+            valign: "bottom"
+            shorten: True
+
+            multiline: True
+            size_hint: (0.9,0.28)
+            pos_hint: {"x":0.05,"y":0.58}
+            padding_x: 30
+            padding_y:20
+
+            background_active: "result box.png"
+            background_normal: "result box.png"
+            background_disabled_normal: "result box.png"
+            border: (4.75,1,4.75,1)
+        
+        TextInput:
+            id: notes_output
+            text_size: self.size
+            foreground_color: [0,0,0,1]
+            font_size: 25
+            font_name: "Anonymous Pro.ttf"
+            valign: "bottom"
+            shorten: True
+
+            multiline: True
+            size_hint: (0.367,0.194)
+            pos_hint: {"x":0.09,"y":0.065}
+            padding_x: 30
+            padding_y:20
+
+            background_active: "notes box.png"
+            background_normal: "notes box.png"
+            background_disabled_normal: "notes box.png"
+            border: (1,5,1,5)
+        
+        TextInput:
+            id: answers_input
+            text_size: self.size
+            foreground_color: [0,0,0,1]
+            font_size: 25
+            font_name: "Anonymous Pro.ttf"
+            valign: "bottom"
+            shorten: True
+
+            multiline: True
+            size_hint: (0.367,0.194)
+            pos_hint: {"x":0.52,"y":0.065}
+            padding_x: 30
+            padding_y:20
+
+            background_active: "notes box.png"
+            background_normal: "notes box.png"
+            background_disabled_normal: "notes box.png"
+            border: (1,5,1,5)
+            
+        Button:
+            markup: True
+            text: "[b]Copy[/b]"
+            color: [0,0,0,1]
+            halign: "center"
+            valign: "middle"
+            text_size: self.size
+            font_size: 20
+
+            size_hint: (0.114,0.065)
+            pos_hint: {"x":0.772,"y":0.48}
+            
+            background_active: "copy_btn.png"
+            background_normal: "copy_btn.png"
+            background_disabled_normal: "copy_btn.png"
+            border: (1,2,1,2)
+            on_release: root.copy()
+        
+        Button:
+            size_hint: (0.069,0.097)
+            pos_hint: {"x":0.91,"y":0.03}
+            
+            background_active: "back_btn.png"
+            background_normal: "back_btn.png"
+            background_disabled_normal: "back_btn.png"
+            border: (1,1,1,1)
+            on_release: app.root.current="main"
+
+        Label:
+            id: question_title
+            text: "QUESTION 1"
+            text_size: self.size
+            font_name: "Lucidity-Expand.ttf"
+            color: [0,0,0,1]
+            font_size: 27
+            halign: "center"
+            valign: "middle"
+            shorten: True
+
+            pos_hint: {"center_x":0.48,"center_y":0.355}
+        
+        Button:
+            size_hint: (0.0409,0.058)
+            pos_hint: {"x":0.84,"y":0.33}
+            
+            background_active: "arrow_btn.png"
+            background_normal: "arrow_btn.png"
+            background_disabled_normal: "arrow_btn.png"
+            border: (1,1,1,1)
+            on_release: root.next_inst()
+        
+        Button:
+            size_hint: (0.039,0.058)
+            pos_hint: {"x":0.11,"y":0.33}
+            
+            background_active: "leftarrow_btn.png"
+            background_normal: "leftarrow_btn.png"
+            background_disabled_normal: "leftarrow_btn.png"
+            border: (1,1,1,1)
+            on_release: root.previous_inst()
+
+<ErrorWindow>:
+    name: "error"
+
+    canvas.before:
+        Color:
+            rgba: (1, 1, 1, 1)
+        Rectangle:
+            source:'error_background.jpg'
+            size: root.width, root.height
+            pos: self.pos
+
+    FloatLayout:
+        Button:
+            size_hint: (0.09,0.05)
+            pos_hint: {"center_x":0.5,"center_y":0.333}
+            
+            background_active: "error_back_btn.png"
+            background_normal: "error_back_btn.png"
+            background_disabled_normal: "error_back_btn.png"
+            border: (1,2.86,1,2.86)
+            on_release: app.root.current="main"

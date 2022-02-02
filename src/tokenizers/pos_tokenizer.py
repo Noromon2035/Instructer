@@ -31,16 +31,25 @@ def custom_tokenizer(nlp):
                                 token_match=nlp.tokenizer.token_match,
                                 rules=filtered_exceptions)
 
-nlp = spacy.load("en_core_web_sm")
-nlp.tokenizer = custom_tokenizer(nlp)
-
-def tokenize(text):
+def tokenize(nlp,text):
     __doc = nlp(text)
     return __doc
 
-def pos_tokenize(text):
-    __pos=[]
-    __doc = nlp(text)
-    for token in __doc:
-        __pos.append([token.text, token.pos_, token.tag_,token.lemma_])
-    return __pos
+def pos_tokenize(*args):
+    if len(args)==2:
+        __pos=[]
+        __doc = args[0](args[1])
+        for token in __doc:
+            __pos.append([token.text, token.pos_, token.tag_,token.lemma_])
+        return __pos
+    else:
+        nlp = spacy.load("en_core_web_sm")
+        nlp.tokenizer = custom_tokenizer(nlp)
+        __pos=[]
+        __doc = nlp(args[0])
+        for token in __doc:
+            __pos.append([token.text, token.pos_, token.tag_,token.lemma_])
+        return __pos
+
+if __name__=="__main__":
+    pass
