@@ -3,6 +3,14 @@ from string import punctuation
 from spellchecker import SpellChecker
 spell=SpellChecker()
 
+units_of_measurement=('km', 'hm', 'dam', 'dm', 'cm', 'mm', 'nm', 'pm', 'fm', 'am', 
+'zm', 'kkg', 'hkg', 'dakg', 'dkg', 'ckg', 'mkg', 'nkg', 'pkg', 'fkg', 'akg', 'zkg', 
+'ks', 'hs', 'das', 'ds', 'cs', 'ms', 'ns', 'ps', 'fs', 'as', 'zs', 'kA', 'hA', 'daA',
+'dA', 'cA', 'mA', 'nA', 'pA', 'fA', 'aA', 'zA', 'kK', 'hK', 'daK', 'dK', 'cK', 'mK', 
+'nK', 'pK', 'fK', 'aK', 'zK', 'kmol', 'hmol', 'damol', 'dmol', 'cmol', 'mmol', 'nmol', 
+'pmol', 'fmol', 'amol', 'zmol', 'kcd', 'hcd', 'dacd', 'dcd', 'ccd', 'mcd', 'ncd', 'pcd', 
+'fcd', 'acd', 'zcd')
+
 def check(text):
     words=re.split("[\s{}]+".format(punctuation),text)
     common_words=set()
@@ -21,7 +29,7 @@ def check(text):
                 if char in punctuation:
                     has_punct==True
                     break
-            if word.islower()==True and word.isalpha()==True and has_punct==False:
+            if word.islower()==True and word.isalpha()==True and has_punct==False and word not in units_of_measurement:
                 common_words.add(word)
         count+=1
 

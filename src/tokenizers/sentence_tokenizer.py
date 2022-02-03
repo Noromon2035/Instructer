@@ -36,7 +36,7 @@ def handle_clauses(nlp,tokens):
         after_clause=[]
         for pos in clause[1]:
             after_clause.append(pos)
-            if pos[1]=="VERB" and voice["is_imperative"]==True and verb_found==False:
+            if pos[1]=="VERB" and pos[0][-3:]!="ing" and voice["is_imperative"]==True and verb_found==False:
                 verb_found=True
                 after_clause.append(['^', 'PUNCT', '^', '^'])
         if voice["is_imperative"]==True and verb_found==False:
@@ -65,8 +65,11 @@ def handle_clauses(nlp,tokens):
                 sentence=sentence[0].upper()+sentence[1:]
             sentences.append(sentence)
             sentence=""
-    if sentence !="":
+    if len(sentences)<1:
         sentences.append(sentence)
+    elif sentence !="":
+        last_sent=sentences[-1]
+        sentences[-1]=last_sent[:len(last_sent)-1]+" "+sentence
     print(sentences)
     return sentences
 

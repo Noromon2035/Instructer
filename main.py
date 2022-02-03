@@ -1,4 +1,5 @@
 print("Importing spacy")
+from inspect import trace
 import spacy
 from spacy.tokenizer import Tokenizer
 from spacy.lang.char_classes import ALPHA, ALPHA_LOWER, ALPHA_UPPER, CONCAT_QUOTES, LIST_ELLIPSES, LIST_ICONS
@@ -16,6 +17,7 @@ from kivy.clock import Clock
 from kivy.core.clipboard import Clipboard
 from printers import instruction_printer
 import re
+import traceback
  
 Config.set('graphics', 'resizable', True)
 Config.set('graphics', 'width', '1000')
@@ -64,6 +66,7 @@ class LoadingWindow(Screen):
     nlp=None
     inst=""
     count=0
+    event=None
 
     def custom_tokenizer(self,nlp):
         infixes = (
@@ -121,6 +124,7 @@ class LoadingWindow(Screen):
         phrases_simplified=phrase_simplifier.simplify(self.nlp,self.inst)
         __pos=pos_tokenizer.pos_tokenize(self.nlp,phrases_simplified)
         self.inst=simplifier.simplify(self.nlp,__pos)
+        print(self.inst)
 
     def check_grammar(self):
         from checkers import grammar_checker_lt
@@ -135,7 +139,8 @@ class LoadingWindow(Screen):
             self.questions,self.instructions, self.notes=self.analyzer.analyze(self.nlp,self.inst,self.receiver)
             sm.current="result"
         except:
-            self.questions,self.instructions, self.notes=self.analyzer.analyze(self.nlp,"Try again",self.receiver)
+            traceback.print_exc()
+            Clock.unschedule(self.event)
             sm.current="error"
     
     def scheduled_analysis(self,dt):
@@ -161,7 +166,9 @@ class LoadingWindow(Screen):
             elif self.count==9:
                 self.analyze()
             self.count+=1
-        except:
+        except Exception as e:
+            traceback.print_exc()
+            Clock.unschedule(self.event)
             sm.current="error"
 
     def on_enter(self, *args):
@@ -169,7 +176,7 @@ class LoadingWindow(Screen):
         self.receiver=sm.get_screen("main").receiver_input.text
         self.count=0
         self.fix_brackets(self.inst)
-        Clock.schedule_interval(self.scheduled_analysis,0.1)
+        self.event=Clock.schedule_interval(self.scheduled_analysis,0.1)
         
 
 
@@ -241,7 +248,7 @@ class ResultWindow(Screen):
             Clock.schedule_interval(self.input_update,0.5)
             Clipboard.copy(self.result_output.text)
         except Exception as e:
-            print(e)
+            traceback.print_exc()
             sm.current="error"
             pass
 
@@ -254,6 +261,7 @@ class ResultWindow(Screen):
             instruction=self.print_instruction(self.res_insts_quests,self.res_insts_answers,self.res_insts) + self.print_notes(self.res_notes,self.res_insts_answers)
             self.result_output.text=instruction 
         except:
+            traceback.print_exc()
             sm.current="error"
 
     def copy(self):
@@ -288,7 +296,7 @@ class ErrorWindow(Screen):
 class WindowManager(ScreenManager):
     pass
 
-kv=Builder.load_file("instructer_kivy_v2.kv")
+kv=Builder.load_file("kv_files/instructer_kivy_v2.kv")
 sm=WindowManager()
 screens=[StartUpWindow(name="startup"),MainWindow(name="main"),LoadingWindow(name="loading"),ResultWindow(name="result"),ErrorWindow(name="error")]
 for screen in screens:

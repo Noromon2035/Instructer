@@ -62,39 +62,36 @@ class Analyzer():
         __sentences=st.convert(nlp,instruction, __pos)    
         print("\n\n\n\n\n")
 
-        try:
-            for sentence_coded in __sentences:
-                __answered_questions=set()
+        for sentence_coded in __sentences:
+            __answered_questions=set()
 
-                imp_index=sentence_coded.find("`")
-                imperative_sent=""
-                if imp_index+1 < len(sentence_coded) and imp_index!=-1:
-                    imperative_sent=sentence_coded[imp_index+1:]
-                else:
-                    imperative_sent=sentence_coded
-                imperative_coded=imperative_sent
-                imperative_sent= imperative_sent.replace("^","")
+            imp_index=sentence_coded.find("`")
+            imperative_sent=""
+            if imp_index+1 < len(sentence_coded) and imp_index!=-1:
+                imperative_sent=sentence_coded[imp_index+1:]
+            else:
+                imperative_sent=sentence_coded
+            imperative_coded=imperative_sent
+            imperative_sent= imperative_sent.replace("^","")
 
-                imp_prep=prt.tokenize(nlp,imperative_coded)
-                if imp_prep !=None:
-                    for prep in imp_prep:
-                        if prep[2]!="":
-                            __answered_questions.add(prep[2])
+            imp_prep=prt.tokenize(nlp,imperative_coded)
+            if imp_prep !=None:
+                for prep in imp_prep:
+                    if prep[2]!="":
+                        __answered_questions.add(prep[2])
 
-                if imp_index!=0:
-                    non_imperative_sent=sentence_coded[:imp_index]
-                    non_imp_prep=prt.tokenize(nlp,non_imperative_sent)
-                    for prep in non_imp_prep:
-                        if prep[2]!="":
-                            __answered_questions.add(prep[2])
+            if imp_index!=0:
+                non_imperative_sent=sentence_coded[:imp_index]
+                non_imp_prep=prt.tokenize(nlp,non_imperative_sent)
+                for prep in non_imp_prep:
+                    if prep[2]!="":
+                        __answered_questions.add(prep[2])
 
-                __result_sentences.append([sentence_coded,__answered_questions])
-                print(sentence_coded,__answered_questions)
-                print("\n\n")
-            questions, instructions, notes=instruction_formatter.construct(__result_sentences,receiver)
-            print(questions, instructions, notes)
-        except:
-            return [],[instruction],[]
+            __result_sentences.append([sentence_coded,__answered_questions])
+            print(sentence_coded,__answered_questions)
+            print("\n\n")
+        questions, instructions, notes=instruction_formatter.construct(__result_sentences,receiver)
+        print(questions, instructions, notes)
         
         return questions,instructions, notes
 

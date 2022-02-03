@@ -1,5 +1,6 @@
 from finders import noun_phrase_finder
 from gensim.models import KeyedVectors
+from tokenizers import pos_tokenizer
 from nltk.corpus import stopwords
 from string import punctuation
 import wikipedia
@@ -7,8 +8,8 @@ import json
 import re
 
 sw = stopwords.words('english')
-wordvec = KeyedVectors.load("instruct_vector.wordvectors", mmap='r') 
-with open("occurences.json", "r") as fp:
+wordvec = KeyedVectors.load("databases/instruct_vector.wordvectors", mmap='r') 
+with open("databases/occurences.json", "r") as fp:
     occurences_json=json.load(fp)
 occur_quantile=11
 
@@ -26,12 +27,13 @@ def simplify(nlp,instruction):
     print(n_phrases)
     for phrase in n_phrases:
         is_popular=True
-        words=re.split("[\s{}]+".format(punctuation),phrase)
-        words_nsw=[x for x in words if x not in sw and x.istitle()==False and x.isalpha()==True]
+        words=pos_tokenizer.pos_tokenize(nlp,phrase)    
+        words_nsw=[x for x in words if x[3] not in sw and x[3].istitle()==False and x[3].isalpha()==True]
 
         unpopular_word=""
         if words_nsw!=None:
-            for word in words_nsw:
+            for token in words_nsw:
+                word=token[3]
                 occurence=find_occurences(word.lower())
                 if occurence < occur_quantile:
                     is_popular=False

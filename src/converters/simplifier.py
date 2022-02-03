@@ -12,8 +12,8 @@ except Exception as e:
 
 sw = stopwords.words('english')
 wordnet_pos=("NOUN","VERB","ADV","ADJ")
-wordvec = KeyedVectors.load("instruct_vector.wordvectors", mmap='r')
-with open("occurences.json", "r") as fp:
+wordvec = KeyedVectors.load("databases/instruct_vector.wordvectors", mmap='r')
+with open("databases/occurences.json", "r") as fp:
     occurences_json=json.load(fp)
 occur_quantile=11
 

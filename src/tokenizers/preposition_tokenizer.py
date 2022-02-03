@@ -75,7 +75,7 @@ try:
 except Exception as e:
     print(e)
     
-wordvec = KeyedVectors.load("instruct_vector.wordvectors", mmap='r')
+wordvec = KeyedVectors.load("databases/instruct_vector.wordvectors", mmap='r')
 
 def partition(arr,low,high):
     i = (low-1)
@@ -129,7 +129,8 @@ def search_prep_func(phrase):
 def check_prep_role(nlp,prep):
     if len(prep[2])<=1:
         print("\n"+prep[1])
-        prep[2]=prep[2][0]
+        if prep[2]!="":
+            prep[2]=prep[2][0]
         return prep
     else:
         time_regex=r"\d+:\d+"
@@ -263,10 +264,13 @@ def tokenize(nlp,text,is_predicate=True):
             for j in list(range(0,found_prepositions[i][1])):
                 before_prep_tokens.append(tokens[j])
             before_prep_phrase=convert_token(before_prep_tokens,0,len(before_prep_tokens))
-            if before_prep_tokens[-1][0][-1]=="^":
+            try:
+                if before_prep_tokens[-1][0][-1]=="^":
+                    prep_phrases.append(["",before_prep_phrase,""])
+                else:
+                    prep_phrases.append(["",before_prep_phrase,"what"])
+            except:
                 prep_phrases.append(["",before_prep_phrase,""])
-            else:
-                prep_phrases.append(["",before_prep_phrase,"what"])
         prep_phrase=convert_token(prep_phrase_tokens,0,len(prep_phrase_tokens))
         before_prep_phrase=convert_token(before_prep_tokens,0,len(before_prep_tokens))
         prep_phrases.append([before_prep_phrase,prep_phrase,found_prepositions[i][3:]])

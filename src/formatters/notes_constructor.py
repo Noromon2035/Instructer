@@ -20,7 +20,7 @@ def construct(all_questions,receiver):
         notes_dict={}
         notes_dict["question"]="When is the deadline?".format(receiver)
         notes_dict["first"]="This has to be done ^end^"
-        notes_dict["later"]=", and has to be done ^end^."
+        notes_dict["later"]=", and it has to be done ^end^."
         notes.append(notes_dict)
 
     return notes

@@ -4,11 +4,13 @@ from formatters import notes_constructor
 def get_predicate(coded_sentence):
     #add re.sub
     matched_vb=re.search(r"\w+\^",coded_sentence)
-    vb=matched_vb.group()
-    if re.search(r"[nN][oO][tT]\s+\w+\^|n't\s+\w+\^",coded_sentence)!=None:
-        vb="not {}".format(vb)
-    return vb[:-1].lower()
-
+    if matched_vb!=None:
+        vb=matched_vb.group()
+        if re.search(r"[nN][oO][tT]\s+\w+\^|n't\s+\w+\^",coded_sentence)!=None:
+            vb="not {}".format(vb)
+        return vb[:-1].lower()
+    else:
+        return "do"
 def construct(coded_sentences,receiver):
     all_question_words=set()
     questions=[]
@@ -31,7 +33,7 @@ def construct(coded_sentences,receiver):
             q_count+=1
         else:
             sentence_str=sentence[0].replace("^","")
-        sentence_str=str(scount+1) + ". " + sentence_str.replace("`","")
+        sentence_str=str(scount+1) + ". " + sentence_str.replace("`","").capitalize()
         instructions.append(sentence_str)
         scount+=1
     notes=notes_constructor.construct(all_question_words,receiver)
